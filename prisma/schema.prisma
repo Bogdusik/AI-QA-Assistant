@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  GUEST
+}
+
+enum DocumentType {
+  TEST_CASE_SET
+  CHECKLIST
+  BUG_REPORT
+  API_TEST_SET
+}
+
+enum DocumentStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum SourceType {
+  TEXT
+  URL
+  SCREENSHOT
+  PDF
+  MIXED
+}
+
+enum DomainType {
+  WEB
+  MOBILE
+  API
+  GENERAL
+}
+
+enum DetailLevel {
+  SHORT
+  NORMAL
+  DETAILED
+}
+
+enum ItemType {
+  TEST_CASE
+  CHECKLIST_ITEM
+  BUG_REPORT
+  API_TEST_IDEA
+}
+
+enum ReviewStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum FeatureUsed {
+  TEST_CASE_GENERATION
+  CHECKLIST_GENERATION
+  BUG_REPORT_ASSISTANT
+  API_TEST_IDEAS
+}
+
+model User {
+  id           String     @id @default(cuid())
+  name         String?
+  email        String     @unique
+  passwordHash String?
+  role         UserRole   @default(USER)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  documents    Document[]
+  usageLogs    UsageLog[]
+}
+
+model Document {
+  id            String              @id @default(cuid())
+  userId        String?
+  user          User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
+  guestSessionId String?
+  guestSession  GuestSession?       @relation(fields: [guestSessionId], references: [id], onDelete: SetNull)
+  type          DocumentType
+  title         String
+  isDemo        Boolean            @default(false)
+  demoProjectId String?
+  status        DocumentStatus      @default(DRAFT)
+  sourceType    SourceType
+  sourceText    String?
+  sourceUrl     String?
+  sourceFilePath String?
+  domainType    DomainType          @default(GENERAL)
+  detailLevel   DetailLevel         @default(NORMAL)
+  outputMarkdown String?
+  outputJson    Json?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  generatedItems GeneratedItem[]
+  requirementLinks RequirementLink[]
+  qualityAnalysis QualityAnalysis?
+}
+
+model GeneratedItem {
+  id              String       @id @default(cuid())
+  documentId      String
+  document        Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  itemType        ItemType
+  title           String
+  contentJson     Json
+  contentMarkdown String?
+  reviewStatus    ReviewStatus @default(PENDING)
+  sortOrder       Int          @default(0)
+  sourceEvidence  String?
+  assumptions     String?
+  riskNotes       String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model RequirementLink {
+  id                    String   @id @default(cuid())
+  documentId            String
+  document              Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  parentRequirementText String
+  linkedArtifactType    String
+  coverageNote          String?
+  createdAt             DateTime @default(now())
+}
+
+model UsageLog {
+  id              String     @id @default(cuid())
+  userId          String?
+  user            User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  guestSessionKey String?
+  featureUsed     FeatureUsed
+  tokensEstimated Int        @default(0)
+  createdAt       DateTime   @default(now())
+}
+
+model GuestSession {
+  id           String     @id @default(cuid())
+  sessionKey   String     @unique
+  usageCount   Int        @default(0)
+  allowedFeatureUsed     FeatureUsed?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  documents    Document[]
+}
+
+model QualityAnalysis {
+  id              String   @id @default(cuid())
+  documentId      String   @unique
+  document        Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  overallScore    Int
+  strengths       Json
+  weaknesses      Json
+  suggestions     Json
+  explainability  Json
+  analysisJson    Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
