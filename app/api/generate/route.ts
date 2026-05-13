@@ -9,7 +9,7 @@ import { generateApiIdeas, generateChecklist, generateTestCases, formatBugReport
 const schema = z.object({
   type: z.enum(["TEST_CASE_SET", "CHECKLIST", "BUG_REPORT", "API_TEST_SET"]),
   title: z.string().min(3),
-  sourceText: z.string().optional(),
+  sourceText: z.string().max(50000).optional(),
   sourceUrl: z
     .union([z.string().url(), z.literal(""), z.undefined()])
     .transform((v) => (v === "" ? undefined : v)),

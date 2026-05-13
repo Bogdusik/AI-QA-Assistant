@@ -11,7 +11,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid upload mode." }, { status: 400 });
     }
     validateMime(file, mode);
-    const stored = await storeFile(file);
+    const stored = await storeFile(file, mode);
     const extractedText = mode === "pdf" ? await tryExtractPdfText(stored.bytes) : "";
     return NextResponse.json({
       filePath: stored.filePath,

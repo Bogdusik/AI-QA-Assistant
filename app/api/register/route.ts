@@ -19,7 +19,10 @@ export async function POST(req: Request) {
       data: { name: body.name, email: body.email, passwordHash, role: "USER" }
     });
     return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json({ error: "Invalid registration data." }, { status: 400 });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: "Invalid registration data." }, { status: 400 });
+    }
+    return NextResponse.json({ error: "Registration failed. Please try again." }, { status: 500 });
   }
 }

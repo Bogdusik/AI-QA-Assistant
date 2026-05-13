@@ -50,17 +50,20 @@ async function callModel(kind: GeneratorKind, input: Record<string, unknown>, fe
     "quality-analysis": 1400
   };
 
-  const response = await client.chat.completions.create({
-    model: "gpt-4o-mini",
-    temperature: 0.2,
-    max_tokens: maxTokensByKind[kind],
-    response_format: { type: "json_object" },
-    messages: [{ role: "user", content: buildPrompt(kind, input, feedback) }]
-  }, { signal: controller.signal });
-  clearTimeout(t);
-  const raw = response.choices[0]?.message?.content;
-  if (!raw) throw new Error("AI did not return content.");
-  return JSON.parse(raw) as Record<string, unknown>;
+  try {
+    const response = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      temperature: 0.2,
+      max_tokens: maxTokensByKind[kind],
+      response_format: { type: "json_object" },
+      messages: [{ role: "user", content: buildPrompt(kind, input, feedback) }]
+    }, { signal: controller.signal });
+    const raw = response.choices[0]?.message?.content;
+    if (!raw) throw new Error("AI did not return content.");
+    return JSON.parse(raw) as Record<string, unknown>;
+  } finally {
+    clearTimeout(t);
+  }
 }
 
 export async function generateTestCases(input: Record<string, unknown>) {
@@ -282,13 +285,12 @@ export async function improveGeneratedItem(input: {
   const { itemType, contentJson } = input;
   const prompt = improvementPromptForType(itemType);
   const timeoutMs = Number(process.env.AI_TIMEOUT_MS ?? "60000");
-  const controller = new AbortController();
-  const t = setTimeout(() => controller.abort(), timeoutMs);
-
   const maxTokens = 900;
   let feedback: string | undefined;
 
   for (let attempt = 0; attempt < 2; attempt++) {
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), timeoutMs);
     try {
       const response = await client.chat.completions.create(
         {
@@ -315,12 +317,13 @@ export async function improveGeneratedItem(input: {
     } catch (err) {
       if (err instanceof ZodError) {
         feedback = `Schema mismatch. Return valid JSON that satisfies all required fields for ${itemType}.`;
-        continue;
+      } else {
+        feedback = err instanceof Error ? err.message : "Unknown AI error";
       }
-      feedback = err instanceof Error ? err.message : "Unknown AI error";
+    } finally {
+      clearTimeout(t);
     }
   }
 
-  clearTimeout(t);
   throw new Error("Could not improve this item. Please try again.");
 }

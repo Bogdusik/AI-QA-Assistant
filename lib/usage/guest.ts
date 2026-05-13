@@ -37,7 +37,6 @@ export async function enforceGuestAccess(docTypeForMapping: string) {
     );
   }
 
-  // Lock to first-used generator type.
   if (!guest.allowedFeatureUsed) {
     await prisma.guestSession.update({
       where: { id: guest.id },
@@ -45,12 +44,12 @@ export async function enforceGuestAccess(docTypeForMapping: string) {
     });
   }
 
-  if (guest.usageCount >= limit) {
-    throw new Error("Guest usage limit reached. Create an account for unlimited usage.");
-  }
-  await prisma.guestSession.update({
-    where: { id: guest.id },
+  const updated = await prisma.guestSession.updateMany({
+    where: { id: guest.id, usageCount: { lt: limit } },
     data: { usageCount: { increment: 1 } }
   });
+  if (!updated.count) {
+    throw new Error("Guest usage limit reached. Create an account for unlimited usage.");
+  }
   return guest;
 }

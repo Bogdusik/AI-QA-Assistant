@@ -33,10 +33,15 @@ export async function GET(req: Request, ctx: Ctx) {
         ? toPlainText(doc.title, payloadItems)
         : toMarkdown(doc.title, payloadItems);
 
+  const safeFilename = doc.title
+    .replace(/[^a-zA-Z0-9_\-\s]/g, "")
+    .replace(/\s+/g, "_")
+    .slice(0, 100) || "export";
+
   return new Response(content, {
     headers: {
       "Content-Type": format === "csv" ? "text/csv" : "text/plain",
-      "Content-Disposition": `attachment; filename="${doc.title.replace(/\s+/g, "_")}.${format}"`
+      "Content-Disposition": `attachment; filename="${safeFilename}.${format}"`
     }
   });
 }

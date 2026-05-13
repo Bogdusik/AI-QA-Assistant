@@ -3,7 +3,8 @@ import {
   DocumentType,
   SourceType,
   ItemType,
-  ReviewStatus
+  ReviewStatus,
+  Prisma
 } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -22,10 +23,10 @@ async function main() {
   // Create a minimal demo project (read-only) for recruiters/interviewers.
   const demoProjectId = "demo_project_1";
 
-  async function upsertDemoDocument(type: DocumentType, title: string, itemType: ItemType) {
-    const existing = await (prisma.document as any).findFirst({ where: { demoProjectId, type } });
+  async function upsertDemoDocument(type: DocumentType, title: string) {
+    const existing = await prisma.document.findFirst({ where: { demoProjectId, type } });
     if (existing) return existing;
-    const doc = await (prisma.document as any).create({
+    return prisma.document.create({
       data: {
         type,
         title,
@@ -38,32 +39,17 @@ async function main() {
         detailLevel: "NORMAL"
       }
     });
-
-    return doc;
   }
 
-  const demoTestCases = await upsertDemoDocument(
-    DocumentType.TEST_CASE_SET,
-    "Demo Project - Test Cases",
-    ItemType.TEST_CASE
-  );
-  const demoChecklist = await upsertDemoDocument(
-    DocumentType.CHECKLIST,
-    "Demo Project - Checklist",
-    ItemType.CHECKLIST_ITEM
-  );
-  const demoBug = await upsertDemoDocument(
-    DocumentType.BUG_REPORT,
-    "Demo Project - Bug Report",
-    ItemType.BUG_REPORT
-  );
-  const demoApi = await upsertDemoDocument(
-    DocumentType.API_TEST_SET,
-    "Demo Project - API Test Ideas",
-    ItemType.API_TEST_IDEA
-  );
+  const demoTestCases = await upsertDemoDocument(DocumentType.TEST_CASE_SET, "Demo Project - Test Cases");
+  const demoChecklist = await upsertDemoDocument(DocumentType.CHECKLIST, "Demo Project - Checklist");
+  const demoBug = await upsertDemoDocument(DocumentType.BUG_REPORT, "Demo Project - Bug Report");
+  const demoApi = await upsertDemoDocument(DocumentType.API_TEST_SET, "Demo Project - API Test Ideas");
 
-  async function upsertItemsForDoc(documentId: string, items: Array<{ itemType: ItemType; title: string; contentJson: any; reviewStatus?: ReviewStatus }>) {
+  async function upsertItemsForDoc(
+    documentId: string,
+    items: Array<{ itemType: ItemType; title: string; contentJson: Prisma.InputJsonValue; reviewStatus?: ReviewStatus }>
+  ) {
     await prisma.generatedItem.deleteMany({ where: { documentId } });
     await prisma.generatedItem.createMany({
       data: items.map((i, idx) => ({
@@ -195,8 +181,7 @@ async function main() {
   ]);
 
   async function upsertQualityAnalysisForDoc(documentId: string, type: DocumentType) {
-    const qa = (prisma as any).qualityAnalysis;
-    const existing = await qa.findUnique({ where: { documentId } });
+    const existing = await prisma.qualityAnalysis.findUnique({ where: { documentId } });
     if (existing) return;
 
     const payload =
@@ -244,15 +229,15 @@ async function main() {
                 }
               };
 
-    await qa.create({
+    await prisma.qualityAnalysis.create({
       data: {
         documentId,
         overallScore: payload.overallScore,
         strengths: payload.strengths,
         weaknesses: payload.weaknesses,
         suggestions: payload.suggestions,
-        explainability: payload.explainability,
-        analysisJson: payload
+        explainability: payload.explainability as Prisma.InputJsonValue,
+        analysisJson: payload as unknown as Prisma.InputJsonValue
       }
     });
   }

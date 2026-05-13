@@ -18,7 +18,16 @@ export async function GET(req: Request) {
       ...(status && status !== "ALL" ? { status: status as never } : {})
     },
     orderBy: { createdAt: "desc" },
-    include: { generatedItems: true }
+    select: {
+      id: true,
+      title: true,
+      type: true,
+      status: true,
+      sourceType: true,
+      createdAt: true,
+      isDemo: true,
+      _count: { select: { generatedItems: true } }
+    }
   });
   return NextResponse.json({ documents: docs });
 }

@@ -10,7 +10,8 @@ export function middleware(req: NextRequest) {
     res.cookies.set(COOKIE_NAME, `guest_${crypto.randomUUID()}`, {
       httpOnly: true,
       sameSite: "lax",
-      path: "/"
+      path: "/",
+      secure: process.env.NODE_ENV === "production"
     });
   }
   return res;
