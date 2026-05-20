@@ -6,64 +6,126 @@ import {
   qualityAnalysisSchema,
   testCaseSchema
 } from "@/lib/ai/schemas";
-import { ZodError } from "zod";
+import { ZodError, type ZodTypeAny } from "zod";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 type GeneratorKind = "test-cases" | "checklist" | "bug-report" | "api-ideas" | "quality-analysis";
 
-function buildPrompt(kind: GeneratorKind, input: Record<string, unknown>, feedback?: string) {
-  const baseRules = [
-    "You are a senior QA engineer.",
-    "Use strictly professional QA language.",
-    "Do not invent undocumented behavior.",
-    "If requirement is incomplete, set assumptions explicitly.",
-    "Return valid JSON only.",
-    "All required fields must be present and non-empty."
-  ].join("\n");
+const BASE_RULES = [
+  "You are a senior QA engineer.",
+  "Use strictly professional QA language.",
+  "Do not invent undocumented behavior.",
+  "If requirement is incomplete, set assumptions explicitly.",
+  "Return valid JSON only.",
+  "All required fields must be present and non-empty."
+].join("\n");
 
-  const specific =
-    kind === "test-cases"
-      ? "Return an object with shape: { items: [ { title, priority, type, preconditions, testData, steps, expectedResult, assumptions, sourceEvidence, riskNote } ] }."
-      : kind === "checklist"
-        ? "Return an object with shape: { items: [ { title, category, type, description, assumptions, sourceEvidence } ] }."
-        : kind === "bug-report"
-          ? "Return an object with shape: { item: { title, environment, preconditions, stepsToReproduce, actualResult, expectedResult, severity, priority, notes, assumptions } }."
-          : kind === "api-ideas"
-            ? "Return an object with shape: { items: [ { title, category, purpose, requestNotes, expectedOutcome, suggestedStatusCode, assumptions, sourceEvidence } ] }."
-            : "Return an object with shape matching QualityAnalysis: { overallScore, strengths, weaknesses, suggestions, explainability: { whyScoreGiven, whatIsMissing }, plus one optional section for the artifact type }.";
+const KIND_SCHEMA: Record<GeneratorKind, string> = {
+  "test-cases":
+    "Return an object with shape: { items: [ { title, priority, type, preconditions, testData, steps, expectedResult, assumptions, sourceEvidence, riskNote } ] }.",
+  checklist:
+    "Return an object with shape: { items: [ { title, category, type, description, assumptions, sourceEvidence } ] }.",
+  "bug-report":
+    "Return an object with shape: { item: { title, environment, preconditions, stepsToReproduce, actualResult, expectedResult, severity, priority, notes, assumptions } }.",
+  "api-ideas":
+    "Return an object with shape: { items: [ { title, category, purpose, requestNotes, expectedOutcome, suggestedStatusCode, assumptions, sourceEvidence } ] }.",
+  "quality-analysis":
+    "Return an object with shape matching QualityAnalysis: { overallScore, strengths, weaknesses, suggestions, explainability: { whyScoreGiven, whatIsMissing }, plus one optional section for the artifact type }."
+};
 
-  const feedbackBlock = feedback ? `\nIMPORTANT VALIDATION FEEDBACK:\n${feedback}` : "";
-
-  return `${baseRules}\n${specific}${feedbackBlock}\nInput JSON:\n${JSON.stringify(input, null, 2)}`;
+function buildSystemPrompt(kind: GeneratorKind): string {
+  return `${BASE_RULES}\n${KIND_SCHEMA[kind]}`;
 }
 
-async function callModel(kind: GeneratorKind, input: Record<string, unknown>, feedback?: string) {
+const MAX_TOKENS: Record<GeneratorKind, number> = {
+  "test-cases": 2000,
+  checklist: 1500,
+  "bug-report": 900,
+  "api-ideas": 1700,
+  "quality-analysis": 1400
+};
+
+async function callModel(
+  kind: GeneratorKind,
+  input: Record<string, unknown>,
+  feedback?: string
+): Promise<Record<string, unknown>> {
   const timeoutMs = Number(process.env.AI_TIMEOUT_MS ?? "60000");
   const controller = new AbortController();
   const t = setTimeout(() => controller.abort(), timeoutMs);
-  const maxTokensByKind: Record<GeneratorKind, number> = {
-    "test-cases": 2000,
-    checklist: 1500,
-    "bug-report": 900,
-    "api-ideas": 1700,
-    "quality-analysis": 1400
-  };
+  const feedbackBlock = feedback ? `\nIMPORTANT VALIDATION FEEDBACK:\n${feedback}` : "";
 
   try {
-    const response = await client.chat.completions.create({
-      model: "gpt-4o-mini",
-      temperature: 0.2,
-      max_tokens: maxTokensByKind[kind],
-      response_format: { type: "json_object" },
-      messages: [{ role: "user", content: buildPrompt(kind, input, feedback) }]
-    }, { signal: controller.signal });
+    const response = await client.chat.completions.create(
+      {
+        model: "gpt-4o-mini",
+        temperature: 0.2,
+        max_tokens: MAX_TOKENS[kind],
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: buildSystemPrompt(kind) },
+          {
+            role: "user",
+            content: `Input JSON:\n${JSON.stringify(input, null, 2)}${feedbackBlock}`
+          }
+        ]
+      },
+      { signal: controller.signal }
+    );
     const raw = response.choices[0]?.message?.content;
     if (!raw) throw new Error("AI did not return content.");
     return JSON.parse(raw) as Record<string, unknown>;
   } finally {
     clearTimeout(t);
   }
+}
+
+function buildFeedback(err: unknown): string {
+  if (err instanceof ZodError) {
+    return `Schema mismatch: ${err.issues
+      .slice(0, 6)
+      .map((i) => `${i.path.join(".")}: ${i.message}`)
+      .join("; ")}. Return every required field.`;
+  }
+  return `Schema mismatch: ${err instanceof Error ? err.message : "Unknown error"}. Return every required field.`;
+}
+
+async function withRetry<T>(
+  fetcher: (feedback?: string) => Promise<Record<string, unknown>>,
+  validate: (raw: Record<string, unknown>) => T,
+  attempts = 2
+): Promise<T> {
+  let feedback: string | undefined;
+  for (let i = 0; i < attempts; i++) {
+    const json = await fetcher(feedback);
+    try {
+      return validate(json);
+    } catch (err) {
+      feedback = buildFeedback(err);
+    }
+  }
+  throw new Error("AI returned invalid format after retries.");
+}
+
+async function withRetryItems<T>(
+  kind: GeneratorKind,
+  input: Record<string, unknown>,
+  schema: ZodTypeAny,
+  attempts = 2
+): Promise<T[]> {
+  let feedback: string | undefined;
+  for (let i = 0; i < attempts; i++) {
+    const json = await callModel(kind, input, feedback);
+    const items = Array.isArray(json.items) ? json.items : [];
+    if (!items.length) throw new Error("AI returned empty items array.");
+    try {
+      return items.map((item) => schema.parse(item) as T);
+    } catch (err) {
+      feedback = buildFeedback(err);
+    }
+  }
+  throw new Error("AI returned invalid format after retries.");
 }
 
 export async function generateTestCases(input: Record<string, unknown>) {
@@ -79,125 +141,82 @@ export async function generateTestCases(input: Record<string, unknown>) {
             item && typeof item === "object"
               ? ({
                   ...item,
-                  // Common alias from LLMs
-                  riskNote: (item as { riskNote?: unknown; riskNotes?: unknown }).riskNote ?? (item as { riskNotes?: unknown }).riskNotes
+                  riskNote:
+                    (item as { riskNote?: unknown; riskNotes?: unknown }).riskNote ??
+                    (item as { riskNotes?: unknown }).riskNotes
                 } as Record<string, unknown>)
               : item;
           return testCaseSchema.parse(normalized);
         });
       } catch (err) {
-        if (err instanceof ZodError) {
-          feedback = `Schema mismatch: ${err.issues
-            .slice(0, 6)
-            .map((i) => `${i.path.join(".")}: ${i.message}`)
-            .join("; ")}. Return every required field.`;
-        } else {
-          feedback = `Schema mismatch: ${(err as Error).message}. Return every required field.`;
-        }
+        feedback = buildFeedback(err);
       }
     }
     throw new Error("AI returned invalid test case format after retries.");
   } catch (error) {
-    const reason = error instanceof Error ? error.message : "Unknown AI error";
-    throw new Error(`Could not generate test cases. ${reason}`);
+    throw new Error(
+      `Could not generate test cases. ${error instanceof Error ? error.message : "Unknown AI error"}`
+    );
   }
 }
 
-export async function generateChecklist(input: Record<string, unknown>) {
+export async function generateChecklist(
+  input: Record<string, unknown>
+): Promise<Record<string, unknown>[]> {
   try {
-    let feedback: string | undefined;
-    for (let attempt = 0; attempt < 2; attempt++) {
-      const json = await callModel("checklist", input, feedback);
-      const items = Array.isArray(json.items) ? json.items : [];
-      if (!items.length) throw new Error("AI returned empty items array.");
-      try {
-        return items.map((item) => checklistSchema.parse(item));
-      } catch (err) {
-        if (err instanceof ZodError) {
-          feedback = `Schema mismatch: ${err.issues
-            .slice(0, 6)
-            .map((i) => `${i.path.join(".")}: ${i.message}`)
-            .join("; ")}. Return every required field.`;
-        } else {
-          feedback = `Schema mismatch: ${(err as Error).message}. Return every required field.`;
-        }
-      }
-    }
-    throw new Error("AI returned invalid checklist format after retries.");
+    return (await withRetryItems("checklist", input, checklistSchema)) as Record<string, unknown>[];
   } catch (error) {
-    const reason = error instanceof Error ? error.message : "Unknown AI error";
-    throw new Error(`Could not generate checklist. ${reason}`);
+    throw new Error(
+      `Could not generate checklist. ${error instanceof Error ? error.message : "Unknown AI error"}`
+    );
   }
 }
 
 export async function formatBugReport(input: Record<string, unknown>) {
   try {
-    let feedback: string | undefined;
-    for (let attempt = 0; attempt < 2; attempt++) {
-      const json = await callModel("bug-report", input, feedback);
-      const candidate = json.item ?? json;
-      try {
-        return bugReportSchema.parse(candidate);
-      } catch (err) {
-        if (err instanceof ZodError) {
-          feedback = `Schema mismatch: ${err.issues
-            .slice(0, 6)
-            .map((i) => `${i.path.join(".")}: ${i.message}`)
-            .join("; ")}. Return every required field.`;
-        } else {
-          feedback = `Schema mismatch: ${(err as Error).message}. Return every required field.`;
-        }
-      }
-    }
-    throw new Error("AI returned invalid bug report format after retries.");
+    return await withRetry(
+      (feedback) => callModel("bug-report", input, feedback),
+      (json) => bugReportSchema.parse(json.item ?? json)
+    );
   } catch (error) {
-    const reason = error instanceof Error ? error.message : "Unknown AI error";
-    throw new Error(`Could not format bug report. ${reason}`);
+    throw new Error(
+      `Could not format bug report. ${error instanceof Error ? error.message : "Unknown AI error"}`
+    );
   }
 }
 
-export async function generateApiIdeas(input: Record<string, unknown>) {
+export async function generateApiIdeas(
+  input: Record<string, unknown>
+): Promise<Record<string, unknown>[]> {
   try {
-    let feedback: string | undefined;
-    for (let attempt = 0; attempt < 2; attempt++) {
-      const json = await callModel("api-ideas", input, feedback);
-      const items = Array.isArray(json.items) ? json.items : [];
-      if (!items.length) throw new Error("AI returned empty items array.");
-      try {
-        return items.map((item) => apiTestIdeaSchema.parse(item));
-      } catch (err) {
-        if (err instanceof ZodError) {
-          feedback = `Schema mismatch: ${err.issues
-            .slice(0, 6)
-            .map((i) => `${i.path.join(".")}: ${i.message}`)
-            .join("; ")}. Return every required field.`;
-        } else {
-          feedback = `Schema mismatch: ${(err as Error).message}. Return every required field.`;
-        }
-      }
-    }
-    throw new Error("AI returned invalid API ideas format after retries.");
+    return (await withRetryItems("api-ideas", input, apiTestIdeaSchema)) as Record<
+      string,
+      unknown
+    >[];
   } catch (error) {
-    const reason = error instanceof Error ? error.message : "Unknown AI error";
-    throw new Error(`Could not generate API test ideas. ${reason}`);
+    throw new Error(
+      `Could not generate API test ideas. ${error instanceof Error ? error.message : "Unknown AI error"}`
+    );
   }
 }
 
 export async function analyzeQaQuality(input: Record<string, unknown>) {
   try {
-    const json = await callModel("quality-analysis", input);
-    return qualityAnalysisSchema.parse(json.analysis ?? json);
+    return await withRetry(
+      (feedback) => callModel("quality-analysis", input, feedback),
+      (json) => qualityAnalysisSchema.parse(json.analysis ?? json)
+    );
   } catch (error) {
-    const reason = error instanceof Error ? error.message : "Unknown AI error";
-    throw new Error(`Could not analyze quality. ${reason}`);
+    throw new Error(
+      `Could not analyze quality. ${error instanceof Error ? error.message : "Unknown AI error"}`
+    );
   }
 }
 
 type GeneratedItemType = "TEST_CASE" | "CHECKLIST_ITEM" | "BUG_REPORT" | "API_TEST_IDEA";
 
-function improvementPromptForType(itemType: GeneratedItemType) {
-  if (itemType === "TEST_CASE") {
-    return `Improve this TEST CASE artifact for clarity and QA quality.
+const IMPROVE_PROMPTS: Record<GeneratedItemType, string> = {
+  TEST_CASE: `Improve this TEST CASE artifact for clarity and QA quality.
 Return JSON matching:
 {
   "title": string,
@@ -211,10 +230,9 @@ Return JSON matching:
   "sourceEvidence": string,
   "riskNote": string
 }
-Do not omit required fields. Return only the JSON object.`;
-  }
-  if (itemType === "CHECKLIST_ITEM") {
-    return `Improve this CHECKLIST ITEM artifact for clarity and QA quality.
+Do not omit required fields. Return only the JSON object.`,
+
+  CHECKLIST_ITEM: `Improve this CHECKLIST ITEM artifact for clarity and QA quality.
 Return JSON matching:
 {
   "title": string,
@@ -224,10 +242,9 @@ Return JSON matching:
   "assumptions": string,
   "sourceEvidence": string
 }
-Return only the JSON object. Do not omit required fields.`;
-  }
-  if (itemType === "BUG_REPORT") {
-    return `Improve this BUG REPORT artifact for clarity and QA quality.
+Return only the JSON object. Do not omit required fields.`,
+
+  BUG_REPORT: `Improve this BUG REPORT artifact for clarity and QA quality.
 Return JSON matching:
 {
   "title": string,
@@ -241,9 +258,9 @@ Return JSON matching:
   "notes": string,
   "assumptions": string
 }
-Return only the JSON object. Do not omit required fields.`;
-  }
-  return `Improve this API TEST IDEA artifact for clarity and QA quality.
+Return only the JSON object. Do not omit required fields.`,
+
+  API_TEST_IDEA: `Improve this API TEST IDEA artifact for clarity and QA quality.
 Return JSON matching:
 {
   "title": string,
@@ -255,25 +272,27 @@ Return JSON matching:
   "assumptions": string,
   "sourceEvidence": string
 }
-Return only the JSON object. Do not omit required fields.`;
-}
+Return only the JSON object. Do not omit required fields.`
+};
 
-function schemaForType(itemType: GeneratedItemType) {
-  if (itemType === "TEST_CASE") return testCaseSchema;
-  if (itemType === "CHECKLIST_ITEM") return checklistSchema;
-  if (itemType === "BUG_REPORT") return bugReportSchema;
-  return apiTestIdeaSchema;
-}
+const IMPROVE_SCHEMA: Record<GeneratedItemType, ZodTypeAny> = {
+  TEST_CASE: testCaseSchema,
+  CHECKLIST_ITEM: checklistSchema,
+  BUG_REPORT: bugReportSchema,
+  API_TEST_IDEA: apiTestIdeaSchema
+};
 
-function normalizeBeforeParse(itemType: GeneratedItemType, json: Record<string, unknown>) {
+function normalizeForImprove(itemType: GeneratedItemType, json: Record<string, unknown>) {
   if (itemType === "TEST_CASE") {
-    const maybeRiskNote =
-      typeof json["riskNote"] === "string"
-        ? json["riskNote"]
-        : typeof json["riskNotes"] === "string"
-          ? json["riskNotes"]
-          : undefined;
-    return { ...json, riskNote: maybeRiskNote };
+    return {
+      ...json,
+      riskNote:
+        typeof json["riskNote"] === "string"
+          ? json["riskNote"]
+          : typeof json["riskNotes"] === "string"
+            ? json["riskNotes"]
+            : undefined
+    };
   }
   return json;
 }
@@ -283,9 +302,9 @@ export async function improveGeneratedItem(input: {
   contentJson: Record<string, unknown>;
 }) {
   const { itemType, contentJson } = input;
-  const prompt = improvementPromptForType(itemType);
+  const systemPrompt = IMPROVE_PROMPTS[itemType];
+  const schema = IMPROVE_SCHEMA[itemType];
   const timeoutMs = Number(process.env.AI_TIMEOUT_MS ?? "60000");
-  const maxTokens = 900;
   let feedback: string | undefined;
 
   for (let attempt = 0; attempt < 2; attempt++) {
@@ -296,30 +315,32 @@ export async function improveGeneratedItem(input: {
         {
           model: "gpt-4o-mini",
           temperature: 0.2,
-          max_tokens: maxTokens,
+          max_tokens: 900,
           response_format: { type: "json_object" },
           messages: [
+            { role: "system", content: systemPrompt },
             {
               role: "user",
-              content: `${prompt}\n\nInput JSON:\n${JSON.stringify(contentJson, null, 2)}${feedback ? `\n\nValidation feedback:\n${feedback}` : ""}`
+              content: `Input JSON:\n${JSON.stringify(contentJson, null, 2)}${
+                feedback ? `\n\nValidation feedback:\n${feedback}` : ""
+              }`
             }
           ]
         },
         { signal: controller.signal }
       );
-
       const raw = response.choices[0]?.message?.content;
       if (!raw) throw new Error("AI did not return content.");
       const parsed = JSON.parse(raw) as Record<string, unknown>;
-      const normalized = normalizeBeforeParse(itemType, parsed);
-      const schema = schemaForType(itemType);
+      const normalized = normalizeForImprove(itemType, parsed);
       return schema.parse(normalized) as Record<string, unknown>;
     } catch (err) {
-      if (err instanceof ZodError) {
-        feedback = `Schema mismatch. Return valid JSON that satisfies all required fields for ${itemType}.`;
-      } else {
-        feedback = err instanceof Error ? err.message : "Unknown AI error";
-      }
+      feedback =
+        err instanceof ZodError
+          ? `Schema mismatch. Return valid JSON satisfying all required fields for ${itemType}.`
+          : err instanceof Error
+            ? err.message
+            : "Unknown AI error";
     } finally {
       clearTimeout(t);
     }
