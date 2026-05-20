@@ -11,14 +11,14 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex rounded-full px-2.5 py-1 text-xs font-medium",
-        tone === "default" && "bg-slate-100 text-slate-700",
+        "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-shadow duration-200",
+        tone === "default" && "bg-slate-100 text-slate-700 ring-1 ring-slate-200",
         tone === "pending" &&
-          "bg-semantic-warning-100 text-semantic-warning-700 ring-1 ring-semantic-warning-100 shadow-sm dark:bg-semantic-warning-100 dark:text-semantic-warning-700",
+          "bg-amber-500/10 text-amber-600 ring-1 ring-amber-400/40 badge-glow-amber dark:text-amber-400",
         tone === "accepted" &&
-          "bg-semantic-success-100 text-semantic-success-700 ring-1 ring-semantic-success-100 shadow-sm dark:bg-semantic-success-100 dark:text-semantic-success-700",
+          "bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-400/40 badge-glow-green dark:text-emerald-400",
         tone === "rejected" &&
-          "bg-semantic-danger-100 text-semantic-danger-700 ring-1 ring-semantic-danger-100 shadow-sm dark:bg-semantic-danger-100 dark:text-semantic-danger-700"
+          "bg-red-500/10 text-red-700 ring-1 ring-red-400/40 badge-glow-red dark:text-red-400"
       )}
     >
       {children}
