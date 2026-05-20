@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { getActor } from "@/lib/auth/actor";
 import { analyzeQaQuality } from "@/lib/ai/service";
+import { checkRateLimit, getRateLimitKey } from "@/lib/rate-limit";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -10,17 +11,34 @@ export async function POST(_: Request, ctx: Ctx) {
   try {
     const { id } = await ctx.params;
     const actor = await getActor();
+
+    const rateLimitKey = getRateLimitKey(_, actor.kind === "user" ? actor.userId : undefined);
+    const { allowed, retryAfterMs } = checkRateLimit(rateLimitKey);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded. Try again in a minute." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(retryAfterMs / 1000)) } }
+      );
+    }
+
     const document = await prisma.document.findUnique({
       where: { id },
-      include: { generatedItems: { where: { reviewStatus: "ACCEPTED" }, orderBy: { sortOrder: "asc" } } }
+      include: {
+        generatedItems: { where: { reviewStatus: "ACCEPTED" }, orderBy: { sortOrder: "asc" } }
+      }
     });
     if (!document) return NextResponse.json({ error: "Document not found." }, { status: 404 });
-    if ((document as { isDemo?: boolean }).isDemo) return NextResponse.json({ error: "Demo Project is read-only." }, { status: 403 });
-    if (actor.kind === "user" && document.userId !== actor.userId) return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    if ((document as { isDemo?: boolean }).isDemo)
+      return NextResponse.json({ error: "Demo Project is read-only." }, { status: 403 });
+    if (actor.kind === "user" && document.userId !== actor.userId)
+      return NextResponse.json({ error: "Forbidden." }, { status: 403 });
     if (actor.kind === "guest" && document.guestSessionId !== actor.guestSessionId)
       return NextResponse.json({ error: "Forbidden." }, { status: 403 });
     if (!document.generatedItems.length) {
-      return NextResponse.json({ error: "No accepted items found. Accept items first." }, { status: 400 });
+      return NextResponse.json(
+        { error: "No accepted items found. Accept items first." },
+        { status: 400 }
+      );
     }
 
     const analysis = await analyzeQaQuality({
@@ -68,9 +86,8 @@ export async function POST(_: Request, ctx: Ctx) {
       }
     });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Quality analysis failed." },
-      { status: 400 }
-    );
+    const message = error instanceof Error ? error.message : "Quality analysis failed.";
+    const isAiError = message.startsWith("Could not analyze") || message.includes("AI");
+    return NextResponse.json({ error: message }, { status: isAiError ? 502 : 500 });
   }
 }
