@@ -102,6 +102,9 @@ model Document {
   generatedItems GeneratedItem[]
   requirementLinks RequirementLink[]
   qualityAnalysis QualityAnalysis?
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([guestSessionId])
 }
 
 model GeneratedItem {
@@ -119,6 +122,8 @@ model GeneratedItem {
   riskNotes       String?
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
+
+  @@index([documentId, reviewStatus])
 }
 
 model RequirementLink {
