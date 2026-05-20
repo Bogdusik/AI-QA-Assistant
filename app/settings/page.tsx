@@ -18,19 +18,24 @@ export default async function SettingsPage() {
         ) : (
           <div className="mt-2 space-y-2 text-sm text-slate-600">
             <p>You are using guest mode with limited generation usage.</p>
-            <Link href="/register"><Button>Create account</Button></Link>
+            <Link href="/register">
+              <Button>Create account</Button>
+            </Link>
           </div>
         )}
       </Card>
       <Card>
         <h2 className="font-medium">API usage note</h2>
         <p className="mt-2 text-sm text-slate-600">
-          AI generations use your configured OpenAI API key. Generated suggestions require human review before export.
+          AI generations use your configured OpenAI API key. Generated suggestions require human
+          review before export.
         </p>
       </Card>
       <Card>
         <h2 className="font-medium">Export preferences</h2>
-        <p className="mt-2 text-sm text-slate-600">By default export includes accepted items only.</p>
+        <p className="mt-2 text-sm text-slate-600">
+          By default export includes accepted items only.
+        </p>
       </Card>
     </div>
   );

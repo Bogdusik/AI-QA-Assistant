@@ -1,12 +1,6 @@
 import { Card } from "@/components/ui/card";
 
-function Section({
-  title,
-  children
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="space-y-3">
       <h2 className="text-xl font-semibold">{title}</h2>
@@ -21,15 +15,17 @@ export default function ApiPracticePage() {
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">API Practice Pack</h1>
         <p className="text-slate-600">
-          A beginner-friendly guide to practice API testing using the real endpoints of AI QA Assistant.
-          This is documentation for learning and Postman practice, not an execution engine.
+          A beginner-friendly guide to practice API testing using the real endpoints of AI QA
+          Assistant. This is documentation for learning and Postman practice, not an execution
+          engine.
         </p>
       </div>
 
       <Section title="What is API testing?">
         <p className="text-slate-700">
-          API testing validates behavior at the HTTP layer: request/response correctness, status codes,
-          schema validation, authentication/authorization, and error handling—without using browser automation.
+          API testing validates behavior at the HTTP layer: request/response correctness, status
+          codes, schema validation, authentication/authorization, and error handling—without using
+          browser automation.
         </p>
       </Section>
 
@@ -41,15 +37,21 @@ export default function ApiPracticePage() {
           </Card>
           <Card className="space-y-2">
             <p className="font-semibold">POST</p>
-            <p className="text-sm text-slate-600">Create or trigger an action (e.g., generate a document).</p>
+            <p className="text-sm text-slate-600">
+              Create or trigger an action (e.g., generate a document).
+            </p>
           </Card>
           <Card className="space-y-2">
             <p className="font-semibold">PUT</p>
-            <p className="text-sm text-slate-600">Replace an existing resource (not heavily used in this MVP).</p>
+            <p className="text-sm text-slate-600">
+              Replace an existing resource (not heavily used in this MVP).
+            </p>
           </Card>
           <Card className="space-y-2">
             <p className="font-semibold">DELETE</p>
-            <p className="text-sm text-slate-600">Remove a resource (documents only; demo is read-only).</p>
+            <p className="text-sm text-slate-600">
+              Remove a resource (documents only; demo is read-only).
+            </p>
           </Card>
         </div>
       </Section>
@@ -61,13 +63,15 @@ export default function ApiPracticePage() {
             ["201", "Created", "Resource created successfully."],
             ["400", "Bad Request", "Invalid input: schema validation failed."],
             ["401", "Unauthorized", "Missing or invalid authentication."],
-            ["403", "Forbidden", "Authenticated but not allowed (ownership / demo read-only)." ],
+            ["403", "Forbidden", "Authenticated but not allowed (ownership / demo read-only)."],
             ["404", "Not Found", "Resource doesn’t exist or isn’t accessible."],
             ["409", "Conflict", "Conflict with current state (e.g., duplicate email)."],
             ["500", "Internal Server Error", "Server crashed or an unhandled error occurred."]
           ].map(([code, label, desc]) => (
             <Card key={code} className="space-y-2">
-              <p className="font-semibold">{code} • {label}</p>
+              <p className="font-semibold">
+                {code} • {label}
+              </p>
               <p className="text-sm text-slate-600">{desc}</p>
             </Card>
           ))}
@@ -77,7 +81,12 @@ export default function ApiPracticePage() {
       <Section title="How to test this project with Postman">
         <p className="text-slate-700">
           Recommended workflow:
-          <span className="font-medium"> register → login (get session cookie) → list documents → generate → export → quality analysis</span>.
+          <span className="font-medium">
+            {" "}
+            register → login (get session cookie) → list documents → generate → export → quality
+            analysis
+          </span>
+          .
         </p>
       </Section>
 
@@ -89,13 +98,19 @@ export default function ApiPracticePage() {
               Create a user account for authenticated requests.
             </p>
 
-            <p className="text-sm"><strong>Method:</strong> POST</p>
-            <p className="text-sm"><strong>URL:</strong> http://localhost:3000/api/register</p>
-            <p className="text-sm"><strong>Headers:</strong> Content-Type: application/json</p>
+            <p className="text-sm">
+              <strong>Method:</strong> POST
+            </p>
+            <p className="text-sm">
+              <strong>URL:</strong> http://localhost:3000/api/register
+            </p>
+            <p className="text-sm">
+              <strong>Headers:</strong> Content-Type: application/json
+            </p>
 
             <p className="text-sm font-medium">Sample request body</p>
             <pre className="rounded-lg bg-slate-100 p-4 text-xs overflow-auto">
-{`{
+              {`{
   "name": "Alice QA",
   "email": "alice.qa@example.com",
   "password": "Password123!"
@@ -104,7 +119,7 @@ export default function ApiPracticePage() {
 
             <p className="text-sm font-medium">Expected response</p>
             <pre className="rounded-lg bg-slate-100 p-4 text-xs overflow-auto">
-{`// 200 OK
+              {`// 200 OK
 { "ok": true }
 
 // 409 Conflict
@@ -125,22 +140,34 @@ export default function ApiPracticePage() {
           <Card className="space-y-3">
             <h3 className="font-semibold text-lg">2) Login (NextAuth Credentials)</h3>
             <p className="text-sm text-slate-600">
-              This MVP uses NextAuth credentials. You must send a CSRF token.
-              After login, your browser/session cookie is required for authenticated endpoints.
+              This MVP uses NextAuth credentials. You must send a CSRF token. After login, your
+              browser/session cookie is required for authenticated endpoints.
             </p>
 
-            <p className="text-sm"><strong>Method:</strong> GET</p>
-            <p className="text-sm"><strong>URL:</strong> http://localhost:3000/api/auth/csrf</p>
-            <p className="text-sm"><strong>Headers:</strong> (none required)</p>
+            <p className="text-sm">
+              <strong>Method:</strong> GET
+            </p>
+            <p className="text-sm">
+              <strong>URL:</strong> http://localhost:3000/api/auth/csrf
+            </p>
+            <p className="text-sm">
+              <strong>Headers:</strong> (none required)
+            </p>
 
             <p className="text-sm font-medium">Then: POST login</p>
-            <p className="text-sm"><strong>Method:</strong> POST</p>
-            <p className="text-sm"><strong>URL:</strong> http://localhost:3000/api/auth/callback/credentials</p>
-            <p className="text-sm"><strong>Headers:</strong> Content-Type: application/x-www-form-urlencoded</p>
+            <p className="text-sm">
+              <strong>Method:</strong> POST
+            </p>
+            <p className="text-sm">
+              <strong>URL:</strong> http://localhost:3000/api/auth/callback/credentials
+            </p>
+            <p className="text-sm">
+              <strong>Headers:</strong> Content-Type: application/x-www-form-urlencoded
+            </p>
 
             <p className="text-sm font-medium">Sample body (form)</p>
             <pre className="rounded-lg bg-slate-100 p-4 text-xs overflow-auto">
-{`email=alice.qa@example.com
+              {`email=alice.qa@example.com
 &password=Password123!
 &csrfToken=PASTE_CSRF_TOKEN
 &callbackUrl=http://localhost:3000/dashboard`}
@@ -148,7 +175,7 @@ export default function ApiPracticePage() {
 
             <p className="text-sm font-medium">Expected response</p>
             <pre className="rounded-lg bg-slate-100 p-4 text-xs overflow-auto">
-{`// 200/302 depending on NextAuth flow
+              {`// 200/302 depending on NextAuth flow
 // NextAuth will set session cookies in the response.
 // Verify by calling:
 GET /api/auth/session`}
@@ -165,21 +192,26 @@ GET /api/auth/session`}
           <Card className="space-y-3">
             <h3 className="font-semibold text-lg">3) List documents</h3>
             <p className="text-sm text-slate-600">
-              Filters: q, type, status. This endpoint returns documents visible to the actor (user or guest).
+              Filters: q, type, status. This endpoint returns documents visible to the actor (user
+              or guest).
             </p>
 
-            <p className="text-sm"><strong>Method:</strong> GET</p>
-            <p className="text-sm"><strong>URL:</strong> http://localhost:3000/api/documents?q=&type=ALL&status=ALL</p>
+            <p className="text-sm">
+              <strong>Method:</strong> GET
+            </p>
+            <p className="text-sm">
+              <strong>URL:</strong> http://localhost:3000/api/documents?q=&type=ALL&status=ALL
+            </p>
 
             <p className="text-sm font-medium">Headers</p>
             <pre className="rounded-lg bg-slate-100 p-4 text-xs overflow-auto">
-{`// Auth via NextAuth cookies (for users) OR guest cookie (for guest)
+              {`// Auth via NextAuth cookies (for users) OR guest cookie (for guest)
 Cookie: (paste your session cookies here)`}
             </pre>
 
             <p className="text-sm font-medium">Expected response</p>
             <pre className="rounded-lg bg-slate-100 p-4 text-xs overflow-auto">
-{`{
+              {`{
   "documents": [
     {
       "id": "...",
@@ -206,13 +238,19 @@ Cookie: (paste your session cookies here)`}
               Creates a new Document and GeneratedItems in <strong>PENDING</strong> review status.
             </p>
 
-            <p className="text-sm"><strong>Method:</strong> POST</p>
-            <p className="text-sm"><strong>URL:</strong> http://localhost:3000/api/generate</p>
-            <p className="text-sm"><strong>Headers:</strong> Content-Type: application/json</p>
+            <p className="text-sm">
+              <strong>Method:</strong> POST
+            </p>
+            <p className="text-sm">
+              <strong>URL:</strong> http://localhost:3000/api/generate
+            </p>
+            <p className="text-sm">
+              <strong>Headers:</strong> Content-Type: application/json
+            </p>
 
             <p className="text-sm font-medium">Sample request body</p>
             <pre className="rounded-lg bg-slate-100 p-4 text-xs overflow-auto">
-{`{
+              {`{
   "type": "TEST_CASE_SET",
   "title": "Registration Feature Testing",
   "sourceText": "User can register with email/password. Email must be unique...",
@@ -226,7 +264,7 @@ Cookie: (paste your session cookies here)`}
 
             <p className="text-sm font-medium">Expected response</p>
             <pre className="rounded-lg bg-slate-100 p-4 text-xs overflow-auto">
-{`// 200 OK
+              {`// 200 OK
 { "documentId": "..." }
 
 // 400 Bad Request
@@ -244,22 +282,27 @@ Cookie: (paste your session cookies here)`}
           <Card className="space-y-3">
             <h3 className="font-semibold text-lg">5) Export document (accepted items)</h3>
             <p className="text-sm text-slate-600">
-              Export includes <strong>ACCEPTED</strong> items by default.
-              Use `includePending=true` only if you explicitly want it.
+              Export includes <strong>ACCEPTED</strong> items by default. Use `includePending=true`
+              only if you explicitly want it.
             </p>
 
-            <p className="text-sm"><strong>Method:</strong> GET</p>
-            <p className="text-sm"><strong>URL:</strong> http://localhost:3000/api/documents/{`{documentId}`}/export?format=md</p>
+            <p className="text-sm">
+              <strong>Method:</strong> GET
+            </p>
+            <p className="text-sm">
+              <strong>URL:</strong> http://localhost:3000/api/documents/{`{documentId}`}
+              /export?format=md
+            </p>
 
             <p className="text-sm font-medium">Headers</p>
             <pre className="rounded-lg bg-slate-100 p-4 text-xs overflow-auto">
-{`// Auth via cookies (user/guest ownership rules apply)
+              {`// Auth via cookies (user/guest ownership rules apply)
 Cookie: (paste your session cookies here)`}
             </pre>
 
             <p className="text-sm font-medium">Expected response</p>
             <pre className="rounded-lg bg-slate-100 p-4 text-xs overflow-auto">
-{`// 200 OK
+              {`// 200 OK
 // Content-Disposition: attachment
 // Content-Type: text/plain or text/csv
 ...exported document content...`}
@@ -276,22 +319,27 @@ Cookie: (paste your session cookies here)`}
           <Card className="space-y-3">
             <h3 className="font-semibold text-lg">6) Quality analysis (uses accepted items)</h3>
             <p className="text-sm text-slate-600">
-              Sends accepted items to AI and saves QualityAnalysis linked to the document.
-              Demo documents are read-only and regeneration is blocked.
+              Sends accepted items to AI and saves QualityAnalysis linked to the document. Demo
+              documents are read-only and regeneration is blocked.
             </p>
 
-            <p className="text-sm"><strong>Method:</strong> POST</p>
-            <p className="text-sm"><strong>URL:</strong> http://localhost:3000/api/documents/{`{documentId}`}/quality-analysis</p>
-            <p className="text-sm"><strong>Headers:</strong> Cookie + Content-Type: application/json (body can be empty)</p>
+            <p className="text-sm">
+              <strong>Method:</strong> POST
+            </p>
+            <p className="text-sm">
+              <strong>URL:</strong> http://localhost:3000/api/documents/{`{documentId}`}
+              /quality-analysis
+            </p>
+            <p className="text-sm">
+              <strong>Headers:</strong> Cookie + Content-Type: application/json (body can be empty)
+            </p>
 
             <p className="text-sm font-medium">Sample request body</p>
-            <pre className="rounded-lg bg-slate-100 p-4 text-xs overflow-auto">
-{`{}`}
-            </pre>
+            <pre className="rounded-lg bg-slate-100 p-4 text-xs overflow-auto">{`{}`}</pre>
 
             <p className="text-sm font-medium">Expected response</p>
             <pre className="rounded-lg bg-slate-100 p-4 text-xs overflow-auto">
-{`{
+              {`{
   "analysis": {
     "id": "...",
     "overallScore": 0-100,
@@ -384,4 +432,3 @@ Cookie: (paste your session cookies here)`}
     </div>
   );
 }
-

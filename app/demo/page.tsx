@@ -15,8 +15,9 @@ export default function DemoLandingPage() {
       <Card className="space-y-3">
         <h1 className="text-2xl font-semibold">Demo Project</h1>
         <p className="text-sm text-slate-600">
-          Everything here is read-only. It’s designed so recruiters/interviewers can quickly evaluate how AI QA Assistant
-          structures QA artifacts with review workflow and quality analysis.
+          Everything here is read-only. It’s designed so recruiters/interviewers can quickly
+          evaluate how AI QA Assistant structures QA artifacts with review workflow and quality
+          analysis.
         </p>
       </Card>
 
@@ -36,4 +37,3 @@ export default function DemoLandingPage() {
     </div>
   );
 }
-

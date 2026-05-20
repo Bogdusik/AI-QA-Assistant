@@ -23,8 +23,8 @@ export default function SqlPracticePage() {
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">SQL Practice Pack</h1>
         <p className="text-slate-600">
-          Beginner-friendly SQL examples using the real PostgreSQL tables created by Prisma in AI QA Assistant.
-          Useful for junior QA learning and interview preparation.
+          Beginner-friendly SQL examples using the real PostgreSQL tables created by Prisma in AI QA
+          Assistant. Useful for junior QA learning and interview preparation.
         </p>
       </div>
 
@@ -54,7 +54,9 @@ export default function SqlPracticePage() {
           <Card className="space-y-3">
             <p className="font-semibold">Get all documents (newest first)</p>
             <SqlBlock sql={`SELECT *\nFROM "Document"\nORDER BY "createdAt" DESC;`} />
-            <p className="text-sm text-slate-600">QA use: quickly inspect what artifacts exist and how your system is behaving.</p>
+            <p className="text-sm text-slate-600">
+              QA use: quickly inspect what artifacts exist and how your system is behaving.
+            </p>
           </Card>
 
           <Card className="space-y-3">
@@ -73,7 +75,8 @@ export default function SqlPracticePage() {
               sql={`SELECT *\nFROM "GeneratedItem"\nWHERE "reviewStatus" = 'ACCEPTED'\nORDER BY "createdAt" DESC;`}
             />
             <p className="text-sm text-slate-600">
-              QA use: validate what will be exported and saved coverage for human-accepted artifacts.
+              QA use: validate what will be exported and saved coverage for human-accepted
+              artifacts.
             </p>
           </Card>
 
@@ -82,7 +85,9 @@ export default function SqlPracticePage() {
             <SqlBlock
               sql={`SELECT COUNT(*)::int AS pendingItems\nFROM "GeneratedItem"\nWHERE "reviewStatus" = 'PENDING';`}
             />
-            <p className="text-sm text-slate-600">QA use: measure review backlog and generation throughput.</p>
+            <p className="text-sm text-slate-600">
+              QA use: measure review backlog and generation throughput.
+            </p>
           </Card>
 
           <Card className="space-y-3">
@@ -90,7 +95,9 @@ export default function SqlPracticePage() {
             <SqlBlock
               sql={`SELECT *\nFROM "Document"\nWHERE "userId" = 'USER_ID_HERE'\nORDER BY "createdAt" DESC;`}
             />
-            <p className="text-sm text-slate-600">QA use: reproduce issues for a specific account and verify ownership rules.</p>
+            <p className="text-sm text-slate-600">
+              QA use: reproduce issues for a specific account and verify ownership rules.
+            </p>
           </Card>
 
           <Card className="space-y-3">
@@ -99,7 +106,8 @@ export default function SqlPracticePage() {
               sql={`SELECT d.*\nFROM "Document" d\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM "GeneratedItem" gi\n  WHERE gi."documentId" = d."id"\n    AND gi."reviewStatus" = 'ACCEPTED'\n)\nORDER BY d."createdAt" DESC;`}
             />
             <p className="text-sm text-slate-600">
-              QA use: verify export behavior defaults to ACCEPTED and detect documents stuck in PENDING/REJECTED.
+              QA use: verify export behavior defaults to ACCEPTED and detect documents stuck in
+              PENDING/REJECTED.
             </p>
           </Card>
 
@@ -108,13 +116,19 @@ export default function SqlPracticePage() {
             <SqlBlock
               sql={`SELECT\n  d."id" AS "documentId",\n  d."title",\n  d."type" AS "documentType",\n  qa."overallScore",\n  qa."createdAt" AS "analysisCreatedAt"\nFROM "QualityAnalysis" qa\nJOIN "Document" d ON d."id" = qa."documentId"\nORDER BY qa."createdAt" DESC;`}
             />
-            <p className="text-sm text-slate-600">QA use: audit model quality, compare scores across runs, and debug quality analysis.</p>
+            <p className="text-sm text-slate-600">
+              QA use: audit model quality, compare scores across runs, and debug quality analysis.
+            </p>
           </Card>
 
           <Card className="space-y-3">
             <p className="font-semibold">Order documents by newest (explicit query)</p>
-            <SqlBlock sql={`SELECT "id", "title", "type", "createdAt"\nFROM "Document"\nORDER BY "createdAt" DESC\nLIMIT 20;`} />
-            <p className="text-sm text-slate-600">QA use: quickly locate the latest artifacts created during a test session.</p>
+            <SqlBlock
+              sql={`SELECT "id", "title", "type", "createdAt"\nFROM "Document"\nORDER BY "createdAt" DESC\nLIMIT 20;`}
+            />
+            <p className="text-sm text-slate-600">
+              QA use: quickly locate the latest artifacts created during a test session.
+            </p>
           </Card>
 
           <Card className="space-y-3">
@@ -133,14 +147,22 @@ export default function SqlPracticePage() {
         <div className="space-y-4">
           <Card className="space-y-2">
             <p className="font-semibold">Exercise 1: find all bug report documents</p>
-            <SqlBlock sql={`SELECT *\nFROM "Document"\nWHERE "type" = 'BUG_REPORT'\nORDER BY "createdAt" DESC;`} />
-            <p className="text-sm text-slate-600">Try: add a WHERE for userId, then compare counts.</p>
+            <SqlBlock
+              sql={`SELECT *\nFROM "Document"\nWHERE "type" = 'BUG_REPORT'\nORDER BY "createdAt" DESC;`}
+            />
+            <p className="text-sm text-slate-600">
+              Try: add a WHERE for userId, then compare counts.
+            </p>
           </Card>
 
           <Card className="space-y-2">
             <p className="font-semibold">Exercise 2: count rejected items</p>
-            <SqlBlock sql={`SELECT COUNT(*)::int AS rejectedItems\nFROM "GeneratedItem"\nWHERE "reviewStatus" = 'REJECTED';`} />
-            <p className="text-sm text-slate-600">Try: group by documentId to see which docs are most rejected.</p>
+            <SqlBlock
+              sql={`SELECT COUNT(*)::int AS rejectedItems\nFROM "GeneratedItem"\nWHERE "reviewStatus" = 'REJECTED';`}
+            />
+            <p className="text-sm text-slate-600">
+              Try: group by documentId to see which docs are most rejected.
+            </p>
           </Card>
 
           <Card className="space-y-2">
@@ -155,7 +177,9 @@ export default function SqlPracticePage() {
 
           <Card className="space-y-2">
             <p className="font-semibold">Exercise 4: list latest 5 documents</p>
-            <SqlBlock sql={`SELECT "id", "title", "type", "createdAt"\nFROM "Document"\nORDER BY "createdAt" DESC\nLIMIT 5;`} />
+            <SqlBlock
+              sql={`SELECT "id", "title", "type", "createdAt"\nFROM "Document"\nORDER BY "createdAt" DESC\nLIMIT 5;`}
+            />
             <p className="text-sm text-slate-600">Try: add title search with LIKE.</p>
           </Card>
 
@@ -164,7 +188,9 @@ export default function SqlPracticePage() {
             <SqlBlock
               sql={`SELECT\n  u."id" AS "userId",\n  u."email",\n  COUNT(d."id")::int AS "documentCount"\nFROM "User" u\nLEFT JOIN "Document" d ON d."userId" = u."id"\nWHERE d."id" IS NOT NULL\nGROUP BY u."id", u."email"\nORDER BY "documentCount" DESC\nLIMIT 10;`}
             />
-            <p className="text-sm text-slate-600">Try: include guest docs by switching logic around guestSessionId.</p>
+            <p className="text-sm text-slate-600">
+              Try: include guest docs by switching logic around guestSessionId.
+            </p>
           </Card>
         </div>
       </Section>
@@ -173,8 +199,12 @@ export default function SqlPracticePage() {
         <ul className="list-disc pl-5 space-y-2 text-sm text-slate-700">
           <li>Checking test data integrity (missing fields, unexpected nulls)</li>
           <li>Verifying saved records after human review (PENDING → ACCEPTED / REJECTED)</li>
-          <li>Validating business logic (export includes only ACCEPTED, demo is read-only, etc.)</li>
-          <li>Checking if duplicate entities exist (e.g., duplicate emails via auth table logic)</li>
+          <li>
+            Validating business logic (export includes only ACCEPTED, demo is read-only, etc.)
+          </li>
+          <li>
+            Checking if duplicate entities exist (e.g., duplicate emails via auth table logic)
+          </li>
         </ul>
       </Section>
 
@@ -182,15 +212,16 @@ export default function SqlPracticePage() {
         <Card className="space-y-2">
           <p className="font-semibold">Suggested approach</p>
           <p className="text-sm text-slate-600">
-            Pick one query (e.g., “documents without accepted items”), run it against your local DB, then explain:
-            what it measures, why it matters for QA, and how you’d use it to debug a real issue.
+            Pick one query (e.g., “documents without accepted items”), run it against your local DB,
+            then explain: what it measures, why it matters for QA, and how you’d use it to debug a
+            real issue.
           </p>
           <p className="text-sm text-slate-600">
-            This helps you talk like a QA engineer: not only SQL syntax, but also how the query maps to product behavior.
+            This helps you talk like a QA engineer: not only SQL syntax, but also how the query maps
+            to product behavior.
           </p>
         </Card>
       </Section>
     </div>
   );
 }
-

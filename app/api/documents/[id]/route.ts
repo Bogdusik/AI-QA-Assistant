@@ -40,7 +40,9 @@ export async function PATCH(req: Request, ctx: Ctx) {
   const updated = await prisma.document.updateMany({
     where: {
       id,
-      ...(actor.kind === "user" ? { userId: actor.userId } : { guestSessionId: actor.guestSessionId })
+      ...(actor.kind === "user"
+        ? { userId: actor.userId }
+        : { guestSessionId: actor.guestSessionId })
     },
     data: body
   });
@@ -59,7 +61,9 @@ export async function DELETE(_: Request, ctx: Ctx) {
   const deleted = await prisma.document.deleteMany({
     where: {
       id,
-      ...(actor.kind === "user" ? { userId: actor.userId } : { guestSessionId: actor.guestSessionId })
+      ...(actor.kind === "user"
+        ? { userId: actor.userId }
+        : { guestSessionId: actor.guestSessionId })
     }
   });
   if (!deleted.count) return NextResponse.json({ error: "Not found." }, { status: 404 });
