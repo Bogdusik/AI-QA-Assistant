@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Sparkles } from "lucide-react";
 
 type Kind = "TEST_CASE_SET" | "CHECKLIST" | "BUG_REPORT" | "API_TEST_SET";
 
@@ -88,7 +89,8 @@ export function GeneratorForm({
       <div className="rounded-2xl bg-gradient-to-r from-brand-50 via-white to-white p-6">
         <h1 className="qa-h1">{titleLabel}</h1>
         <p className="qa-body mt-2">
-          Provide clear input and optional context. The generator returns reviewable output you can accept, reject, or improve.
+          Provide clear input and optional context. The generator returns reviewable output you can
+          accept, reject, or improve.
         </p>
       </div>
       <form onSubmit={onSubmit} className="mt-5 px-6 pb-6 space-y-4">
@@ -131,7 +133,9 @@ export function GeneratorForm({
               }}
             />
             {screenshotName && (
-              <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">Uploaded: {screenshotName}</span>
+              <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">
+                Uploaded: {screenshotName}
+              </span>
             )}
           </label>
           <label className="text-sm text-slate-900 dark:text-slate-900">
@@ -151,12 +155,17 @@ export function GeneratorForm({
               }}
             />
             {pdfName && (
-              <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">Uploaded: {pdfName}</span>
+              <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">
+                Uploaded: {pdfName}
+              </span>
             )}
           </label>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-900 dark:text-slate-900" htmlFor="source-text">
+          <label
+            className="mb-1 block text-sm font-medium text-slate-900 dark:text-slate-900"
+            htmlFor="source-text"
+          >
             {sourceLabel}
           </label>
           <Textarea
@@ -167,7 +176,9 @@ export function GeneratorForm({
             required
             placeholder="Paste requirement, feature details, or bug information..."
           />
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{sourceText.length} characters</p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            {sourceText.length} characters
+          </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-1 text-sm text-slate-900 dark:text-slate-900">
@@ -183,7 +194,9 @@ export function GeneratorForm({
               <option value="API">API</option>
               <option value="GENERAL">General</option>
             </select>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Helps AI tailor scenarios to your environment.</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Helps AI tailor scenarios to your environment.
+            </p>
           </label>
           <label className="space-y-1 text-sm text-slate-900 dark:text-slate-900">
             <span className="block font-medium">Detail level</span>
@@ -197,11 +210,16 @@ export function GeneratorForm({
               <option value="NORMAL">Normal</option>
               <option value="DETAILED">Detailed</option>
             </select>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Choose how deep the generator should go.</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Choose how deep the generator should go.
+            </p>
           </label>
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-900 dark:text-slate-900" htmlFor="extra-payload">
+          <label
+            className="mb-1 block text-sm font-medium text-slate-900 dark:text-slate-900"
+            htmlFor="extra-payload"
+          >
             Structured extra context (JSON)
           </label>
           <Textarea
@@ -220,9 +238,17 @@ export function GeneratorForm({
             {error}
           </p>
         )}
-        <Button type="submit" disabled={loading} aria-busy={loading} className="w-full sm:w-auto">
-          {loading ? "Generating..." : "Generate"}
-        </Button>
+        {loading ? (
+          <div className="relative inline-flex h-10 w-40 select-none items-center justify-center overflow-hidden rounded-md bg-brand-500 text-sm font-medium text-white">
+            <span className="relative z-10">Generating…</span>
+            <div className="shimmer-overlay" />
+          </div>
+        ) : (
+          <Button type="submit" className="w-full sm:w-auto">
+            <Sparkles className="mr-2 h-4 w-4" />
+            Generate
+          </Button>
+        )}
       </form>
     </Card>
   );
