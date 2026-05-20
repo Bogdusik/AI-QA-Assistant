@@ -4,11 +4,17 @@ import { z } from "zod";
 import { getActor } from "@/lib/auth/actor";
 import { prisma } from "@/lib/db/prisma";
 import { enforceGuestAccess } from "@/lib/usage/guest";
-import { generateApiIdeas, generateChecklist, generateTestCases, formatBugReport } from "@/lib/ai/service";
+import {
+  generateApiIdeas,
+  generateChecklist,
+  generateTestCases,
+  formatBugReport
+} from "@/lib/ai/service";
+import { checkRateLimit, getRateLimitKey } from "@/lib/rate-limit";
 
 const schema = z.object({
   type: z.enum(["TEST_CASE_SET", "CHECKLIST", "BUG_REPORT", "API_TEST_SET"]),
-  title: z.string().min(3),
+  title: z.string().min(3).max(200),
   sourceText: z.string().max(50000).optional(),
   sourceUrl: z
     .union([z.string().url(), z.literal(""), z.undefined()])
@@ -23,6 +29,19 @@ export async function POST(req: Request) {
   try {
     const body = schema.parse(await req.json());
     const actor = await getActor();
+
+    const rateLimitKey = getRateLimitKey(req, actor.kind === "user" ? actor.userId : undefined);
+    const { allowed, retryAfterMs } = checkRateLimit(rateLimitKey);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded. Try again in a minute." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(Math.ceil(retryAfterMs / 1000)) }
+        }
+      );
+    }
+
     if (actor.kind === "guest") await enforceGuestAccess(body.type);
 
     const baseInput = {
@@ -58,47 +77,61 @@ export async function POST(req: Request) {
         : body.sourceUrl
           ? "URL"
           : "TEXT";
-    const doc = await prisma.document.create({
-      data: {
-        type: body.type,
-        title: body.title,
-        sourceText: body.sourceText,
-        sourceUrl: body.sourceUrl || null,
-        sourceFilePath: body.sourceFilePath || null,
-        sourceType,
-        domainType: body.domainType,
-        detailLevel: body.detailLevel,
-        status: "ACTIVE",
-        ...(actor.kind === "user" ? { userId: actor.userId } : { guestSessionId: actor.guestSessionId })
-      }
-    });
 
-    await prisma.generatedItem.createMany({
-      data: generated.map((item, idx) => ({
-        documentId: doc.id,
-        itemType,
-        title: String(item.title ?? `${itemType} #${idx + 1}`),
-        contentJson: item as Prisma.InputJsonValue,
-        reviewStatus: "PENDING",
-        sortOrder: idx,
-        sourceEvidence: String(item.sourceEvidence ?? ""),
-        assumptions: String(item.assumptions ?? ""),
-        riskNotes: String(item.riskNote ?? "")
-      }))
-    });
+    const doc = await prisma.$transaction(async (tx) => {
+      const created = await tx.document.create({
+        data: {
+          type: body.type,
+          title: body.title,
+          sourceText: body.sourceText,
+          sourceUrl: body.sourceUrl || null,
+          sourceFilePath: body.sourceFilePath || null,
+          sourceType,
+          domainType: body.domainType,
+          detailLevel: body.detailLevel,
+          status: "ACTIVE",
+          ...(actor.kind === "user"
+            ? { userId: actor.userId }
+            : { guestSessionId: actor.guestSessionId })
+        }
+      });
 
-    await prisma.requirementLink.create({
-      data: {
-        documentId: doc.id,
-        parentRequirementText: body.sourceText || body.title,
-        linkedArtifactType: body.type,
-        coverageNote: "Generated from current request input."
-      }
+      await tx.generatedItem.createMany({
+        data: generated.map((item, idx) => ({
+          documentId: created.id,
+          itemType,
+          title: String(item.title ?? `${itemType} #${idx + 1}`),
+          contentJson: item as Prisma.InputJsonValue,
+          reviewStatus: "PENDING",
+          sortOrder: idx,
+          sourceEvidence: String(item.sourceEvidence ?? ""),
+          assumptions: String(item.assumptions ?? ""),
+          riskNotes: String(item.riskNote ?? "")
+        }))
+      });
+
+      await tx.requirementLink.create({
+        data: {
+          documentId: created.id,
+          parentRequirementText: body.sourceText || body.title,
+          linkedArtifactType: body.type,
+          coverageNote: "Generated from current request input."
+        }
+      });
+
+      return created;
     });
 
     return NextResponse.json({ documentId: doc.id });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: "Invalid request data." }, { status: 400 });
+    }
     const message = error instanceof Error ? error.message : "Generation failed.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    const isAiError =
+      message.startsWith("Could not generate") ||
+      message.startsWith("Could not format") ||
+      message.includes("AI");
+    return NextResponse.json({ error: message }, { status: isAiError ? 502 : 500 });
   }
 }
