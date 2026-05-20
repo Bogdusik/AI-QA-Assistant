@@ -5,14 +5,26 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Clock, Sparkles, ThumbsUp, ThumbsDown, Zap, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import {
+  Clock,
+  Sparkles,
+  ThumbsUp,
+  ThumbsDown,
+  Zap,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle
+} from "lucide-react";
+
+type ReviewStatus = "PENDING" | "ACCEPTED" | "REJECTED";
+type ItemType = "TEST_CASE" | "CHECKLIST_ITEM" | "BUG_REPORT" | "API_TEST_IDEA";
 
 type Item = {
   id: string;
   title: string;
-  reviewStatus: "PENDING" | "ACCEPTED" | "REJECTED";
+  reviewStatus: ReviewStatus;
   contentJson: Record<string, unknown>;
-  itemType: "TEST_CASE" | "CHECKLIST_ITEM" | "BUG_REPORT" | "API_TEST_IDEA";
+  itemType: ItemType;
   sourceEvidence?: string | null;
   assumptions?: string | null;
   riskNotes?: string | null;
@@ -26,7 +38,7 @@ export function DocumentDetailClient({
   actorKind,
   qualityAnalysis,
   readOnly = false,
-  items
+  items: initialItems
 }: {
   documentId: string;
   title: string;
@@ -44,7 +56,8 @@ export function DocumentDetailClient({
   readOnly?: boolean;
   items: Item[];
 }) {
-  const [statusFilter, setStatusFilter] = useState<"ALL" | "PENDING" | "ACCEPTED" | "REJECTED">("ALL");
+  const [items, setItems] = useState<Item[]>(initialItems);
+  const [statusFilter, setStatusFilter] = useState<"ALL" | ReviewStatus>("ALL");
   const [clientError, setClientError] = useState("");
   const [analysis, setAnalysis] = useState(qualityAnalysis);
   const [analysisLoading, setAnalysisLoading] = useState(false);
@@ -56,12 +69,21 @@ export function DocumentDetailClient({
     oldContentJson: Record<string, unknown>;
     newContentJson: Record<string, unknown>;
   }>(null);
+
   const filtered = useMemo(
     () => items.filter((i) => statusFilter === "ALL" || i.reviewStatus === statusFilter),
     [items, statusFilter]
   );
 
-  async function updateStatus(itemId: string, reviewStatus: Item["reviewStatus"]) {
+  function patchItem(itemId: string, patch: Partial<Item>) {
+    setItems((prev) => prev.map((i) => (i.id === itemId ? { ...i, ...patch } : i)));
+  }
+
+  function patchAllItems(patch: Partial<Item>) {
+    setItems((prev) => prev.map((i) => ({ ...i, ...patch })));
+  }
+
+  async function updateStatus(itemId: string, reviewStatus: ReviewStatus) {
     setClientError("");
     const res = await fetch(`/api/items/${itemId}`, {
       method: "PATCH",
@@ -70,13 +92,17 @@ export function DocumentDetailClient({
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setClientError(data.error || "Could not update item status.");
+      setClientError((data as { error?: string }).error || "Could not update item status.");
       return;
     }
-    location.reload();
+    patchItem(itemId, { reviewStatus });
   }
 
-  async function saveContent(itemId: string, titleText: string, contentJson: Record<string, unknown>) {
+  async function saveContent(
+    itemId: string,
+    titleText: string,
+    contentJson: Record<string, unknown>
+  ) {
     setClientError("");
     const res = await fetch(`/api/items/${itemId}`, {
       method: "PATCH",
@@ -85,13 +111,13 @@ export function DocumentDetailClient({
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setClientError(data.error || "Could not save edits.");
+      setClientError((data as { error?: string }).error || "Could not save edits.");
       return;
     }
-    location.reload();
+    patchItem(itemId, { title: titleText, contentJson });
   }
 
-  async function bulk(reviewStatus: Item["reviewStatus"]) {
+  async function bulk(reviewStatus: ReviewStatus) {
     setClientError("");
     const res = await fetch(`/api/documents/${documentId}/bulk-review`, {
       method: "POST",
@@ -100,10 +126,10 @@ export function DocumentDetailClient({
     });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setClientError(data.error || "Bulk review update failed.");
+      setClientError((data as { error?: string }).error || "Bulk review update failed.");
       return;
     }
-    location.reload();
+    patchAllItems({ reviewStatus });
   }
 
   async function runAnalysis() {
@@ -112,8 +138,9 @@ export function DocumentDetailClient({
     try {
       const res = await fetch(`/api/documents/${documentId}/quality-analysis`, { method: "POST" });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Could not run quality analysis.");
-      setAnalysis(data.analysis);
+      if (!res.ok)
+        throw new Error((data as { error?: string }).error || "Could not run quality analysis.");
+      setAnalysis((data as { analysis: typeof qualityAnalysis }).analysis);
     } catch (e) {
       setClientError(e instanceof Error ? e.message : "Could not run quality analysis.");
     } finally {
@@ -128,13 +155,14 @@ export function DocumentDetailClient({
     try {
       const res = await fetch(`/api/items/${item.id}/improve`, { method: "POST" });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "AI improvement failed.");
+      if (!res.ok) throw new Error((data as { error?: string }).error || "AI improvement failed.");
       setImproveDraft({
         itemId: item.id,
         oldTitle: item.title,
-        newTitle: data.improvedTitle ?? item.title,
+        newTitle: (data as { improvedTitle?: string }).improvedTitle ?? item.title,
         oldContentJson: item.contentJson,
-        newContentJson: data.improvedContentJson
+        newContentJson: (data as { improvedContentJson: Record<string, unknown> })
+          .improvedContentJson
       });
     } catch (e) {
       setClientError(e instanceof Error ? e.message : "AI improvement failed.");
@@ -157,10 +185,15 @@ export function DocumentDetailClient({
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setClientError(data.error || "Could not apply improvements.");
+      setClientError((data as { error?: string }).error || "Could not apply improvements.");
       return;
     }
-    location.reload();
+    patchItem(improveDraft.itemId, {
+      title: improveDraft.newTitle,
+      contentJson: improveDraft.newContentJson,
+      reviewStatus: "PENDING"
+    });
+    setImproveDraft(null);
   }
 
   const coverage = useMemo(() => {
@@ -184,14 +217,31 @@ export function DocumentDetailClient({
 
     const explanation: string[] = [];
     if (acceptedCount === 0) {
-      explanation.push("No accepted artifacts are available yet, so coverage cannot be considered strong.");
+      explanation.push(
+        "No accepted artifacts are available yet, so coverage cannot be considered strong."
+      );
     } else {
-      explanation.push(`Accepted artifacts: ${acceptedCount}. Artifact type diversity: ${diversity}.`);
-      if (acceptedCount < 2) explanation.push("Add more accepted artifacts to strengthen coverage.");
-      if (diversity < 2) explanation.push("Add accepted artifacts from more than one artifact type (e.g., test cases + checklist).");
-      if (status === "Well covered") explanation.push("Coverage is strong because there are enough accepted artifacts and multiple artifact types contribute.");
-      if (status === "Partially covered") explanation.push("Coverage is moderate; you can improve it by accepting more items and increasing type diversity.");
-      if (status === "Poorly covered" && acceptedCount > 0) explanation.push("Coverage is weak; focus on accepting additional items and covering more scenarios.");
+      explanation.push(
+        `Accepted artifacts: ${acceptedCount}. Artifact type diversity: ${diversity}.`
+      );
+      if (acceptedCount < 2)
+        explanation.push("Add more accepted artifacts to strengthen coverage.");
+      if (diversity < 2)
+        explanation.push(
+          "Add accepted artifacts from more than one artifact type (e.g., test cases + checklist)."
+        );
+      if (status === "Well covered")
+        explanation.push(
+          "Coverage is strong because there are enough accepted artifacts and multiple artifact types contribute."
+        );
+      if (status === "Partially covered")
+        explanation.push(
+          "Coverage is moderate; you can improve it by accepting more items and increasing type diversity."
+        );
+      if (status === "Poorly covered" && acceptedCount > 0)
+        explanation.push(
+          "Coverage is weak; focus on accepting additional items and covering more scenarios."
+        );
     }
 
     return {
@@ -214,7 +264,8 @@ export function DocumentDetailClient({
           <div className="flex items-start gap-3">
             <AlertTriangle className="mt-0.5 h-5 w-5 text-semantic-warning-700" />
             <p className="text-sm text-slate-900">
-              <strong>Demo Project</strong> is read-only. You can review, analyze, and export examples, but you cannot edit or regenerate them.
+              <strong>Demo Project</strong> is read-only. You can review, analyze, and export
+              examples, but you cannot edit or regenerate them.
             </p>
           </div>
         </Card>
@@ -223,7 +274,8 @@ export function DocumentDetailClient({
           <div className="flex items-start gap-3">
             <AlertTriangle className="mt-0.5 h-5 w-5 text-semantic-warning-700" />
             <p className="text-sm text-slate-900">
-              You are in guest mode. Create an account to remove usage limits and keep your work beyond this session.
+              You are in guest mode. Create an account to remove usage limits and keep your work
+              beyond this session.
             </p>
           </div>
         </Card>
@@ -232,22 +284,22 @@ export function DocumentDetailClient({
         <div className="space-y-4 lg:col-span-7">
           <Card>
             <div className="flex flex-wrap items-center gap-2">
-              {["ALL", "PENDING", "ACCEPTED", "REJECTED"].map((s) => (
+              {(["ALL", "PENDING", "ACCEPTED", "REJECTED"] as const).map((s) => (
                 <Button
                   key={s}
                   variant={statusFilter === s ? "default" : "outline"}
-                  onClick={() => setStatusFilter(s as never)}
+                  onClick={() => setStatusFilter(s)}
                 >
                   {s}
                 </Button>
               ))}
               {!readOnly && (
                 <>
-                  <Button className="ml-auto" onClick={() => bulk("ACCEPTED")}>
+                  <Button className="ml-auto" onClick={() => void bulk("ACCEPTED")}>
                     <ThumbsUp className="mr-2 h-4 w-4" />
                     Accept all
                   </Button>
-                  <Button variant="destructive" onClick={() => bulk("REJECTED")}>
+                  <Button variant="destructive" onClick={() => void bulk("REJECTED")}>
                     <ThumbsDown className="mr-2 h-4 w-4" />
                     Reject all
                   </Button>
@@ -265,7 +317,8 @@ export function DocumentDetailClient({
               <div className="space-y-1">
                 <p className="text-sm font-medium">No items match this filter.</p>
                 <p className="text-sm text-slate-600 dark:text-slate-300">
-                  Try switching to <strong>ALL</strong> or accept more artifacts to unlock stronger coverage.
+                  Try switching to <strong>ALL</strong> or accept more artifacts to unlock stronger
+                  coverage.
                 </p>
               </div>
             </Card>
@@ -275,7 +328,9 @@ export function DocumentDetailClient({
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="truncate font-medium">{item.title}</p>
-                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{item.itemType}</p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      {item.itemType}
+                    </p>
                   </div>
                   <Badge
                     tone={
@@ -318,7 +373,9 @@ export function DocumentDetailClient({
                     <Button
                       onClick={() => {
                         setClientError("");
-                        const el = document.getElementById(`item-${item.id}`) as HTMLTextAreaElement | null;
+                        const el = document.getElementById(
+                          `item-${item.id}`
+                        ) as HTMLTextAreaElement | null;
                         if (!el) {
                           setClientError("Edit box not found.");
                           return;
@@ -334,11 +391,14 @@ export function DocumentDetailClient({
                     >
                       Save edit
                     </Button>
-                    <Button onClick={() => updateStatus(item.id, "ACCEPTED")}>
+                    <Button onClick={() => void updateStatus(item.id, "ACCEPTED")}>
                       <Zap className="mr-2 h-4 w-4" />
                       Accept
                     </Button>
-                    <Button variant="destructive" onClick={() => updateStatus(item.id, "REJECTED")}>
+                    <Button
+                      variant="destructive"
+                      onClick={() => void updateStatus(item.id, "REJECTED")}
+                    >
                       <AlertTriangle className="mr-2 h-4 w-4" />
                       Reject
                     </Button>
@@ -364,13 +424,17 @@ export function DocumentDetailClient({
                     </div>
                     <div className="grid gap-3 md:grid-cols-2">
                       <div className="space-y-1">
-                        <p className="text-xs font-medium text-slate-600 dark:text-slate-300">Old</p>
+                        <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                          Old
+                        </p>
                         <pre className="max-h-64 overflow-auto rounded bg-white p-2 text-[11px]">
                           {JSON.stringify(improveDraft.oldContentJson, null, 2)}
                         </pre>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs font-medium text-slate-600 dark:text-slate-300">AI New</p>
+                        <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                          AI New
+                        </p>
                         <pre className="max-h-64 overflow-auto rounded bg-white p-2 text-[11px]">
                           {JSON.stringify(improveDraft.newContentJson, null, 2)}
                         </pre>
@@ -380,7 +444,8 @@ export function DocumentDetailClient({
                       <Button onClick={() => void applyImprove()}>Apply improvements</Button>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Applying improvements resets review status to <strong>PENDING</strong> so you can re-approve the updated artifact.
+                      Applying improvements resets review status to <strong>PENDING</strong> so you
+                      can re-approve the updated artifact.
                     </p>
                   </Card>
                 )}
@@ -422,7 +487,8 @@ export function DocumentDetailClient({
               <div>
                 <h2 className="qa-h2">Coverage</h2>
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                  Requirement: {sourceText ? "from your input" : "from document title / linked requirement"}
+                  Requirement:{" "}
+                  {sourceText ? "from your input" : "from document title / linked requirement"}
                 </p>
               </div>
               <div className="text-right">
@@ -439,15 +505,21 @@ export function DocumentDetailClient({
                   >
                     {coverage.status}
                   </span>{" "}
-                  <span className="text-slate-500 dark:text-slate-400">(score {coverage.score}/100)</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    (score {coverage.score}/100)
+                  </span>
                 </p>
               </div>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Coverage strength</p>
-                <p className="text-xs font-medium text-slate-700 dark:text-slate-200">{coverage.score}%</p>
+                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                  Coverage strength
+                </p>
+                <p className="text-xs font-medium text-slate-700 dark:text-slate-200">
+                  {coverage.score}%
+                </p>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
                 <div
@@ -483,7 +555,9 @@ export function DocumentDetailClient({
               </div>
               <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:bg-slate-900 dark:border-slate-800">
                 <p className="text-xs text-slate-500 dark:text-slate-400">Pending</p>
-                <p className="text-lg font-semibold text-semantic-warning-700">{coverage.pending.length}</p>
+                <p className="text-lg font-semibold text-semantic-warning-700">
+                  {coverage.pending.length}
+                </p>
               </div>
             </div>
 
@@ -509,7 +583,8 @@ export function DocumentDetailClient({
                       key={i.id}
                       className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-800 dark:bg-white dark:text-slate-900"
                     >
-                      {i.title} <span className="text-slate-500 dark:text-slate-400">({i.itemType})</span>
+                      {i.title}{" "}
+                      <span className="text-slate-500 dark:text-slate-400">({i.itemType})</span>
                     </span>
                   ))}
                 </div>
@@ -528,7 +603,11 @@ export function DocumentDetailClient({
               <div className="flex gap-2">
                 {!readOnly && (
                   <Button variant="outline" onClick={runAnalysis} disabled={analysisLoading}>
-                    {analysisLoading ? "Analyzing..." : analysis ? "Regenerate analysis" : "Analyze Quality"}
+                    {analysisLoading
+                      ? "Analyzing..."
+                      : analysis
+                        ? "Regenerate analysis"
+                        : "Analyze Quality"}
                   </Button>
                 )}
                 <Button
@@ -550,7 +629,8 @@ export function DocumentDetailClient({
                 <div className="space-y-1">
                   <p className="text-sm font-medium">No quality analysis yet</p>
                   <p className="text-sm text-slate-600 dark:text-slate-300">
-                    Analyze accepted items to get a score plus strengths, weaknesses, and improvement suggestions.
+                    Analyze accepted items to get a score plus strengths, weaknesses, and
+                    improvement suggestions.
                   </p>
                 </div>
               </div>
@@ -626,17 +706,21 @@ export function DocumentDetailClient({
                     <div>
                       <p className="text-sm font-medium">Why score was given</p>
                       <ul className="mt-2 list-disc space-y-1 pl-5">
-                        {((analysis.explainability.whyScoreGiven as string[]) ?? []).map((line, i) => (
-                          <li key={`ws-${i}`}>{line}</li>
-                        ))}
+                        {((analysis.explainability.whyScoreGiven as string[]) ?? []).map(
+                          (line, i) => (
+                            <li key={`ws-${i}`}>{line}</li>
+                          )
+                        )}
                       </ul>
                     </div>
                     <div>
                       <p className="text-sm font-medium">What is missing</p>
                       <ul className="mt-2 list-disc space-y-1 pl-5">
-                        {((analysis.explainability.whatIsMissing as string[]) ?? []).map((line, i) => (
-                          <li key={`wm-${i}`}>{line}</li>
-                        ))}
+                        {((analysis.explainability.whatIsMissing as string[]) ?? []).map(
+                          (line, i) => (
+                            <li key={`wm-${i}`}>{line}</li>
+                          )
+                        )}
                       </ul>
                     </div>
                   </div>
