@@ -16,7 +16,8 @@ export function Button({ className, variant = "default", ...props }: Props) {
           "bg-brand-500 text-white hover:bg-brand-700 dark:bg-brand-50 dark:text-brand-700 dark:hover:bg-brand-100 border border-brand-500/45",
         variant === "secondary" &&
           "bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 border border-slate-300/80",
-        variant === "outline" && "border border-slate-300 bg-white hover:bg-slate-50 dark:border-slate-200 dark:bg-white dark:hover:bg-slate-50",
+        variant === "outline" &&
+          "border border-slate-300 bg-white hover:bg-slate-50 dark:border-slate-200 dark:bg-white dark:hover:bg-slate-50",
         variant === "destructive" && "bg-red-600 text-white hover:bg-red-700",
         variant === "ghost" && "hover:bg-slate-100 dark:hover:bg-slate-100",
         className

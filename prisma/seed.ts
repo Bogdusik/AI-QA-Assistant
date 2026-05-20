@@ -41,14 +41,28 @@ async function main() {
     });
   }
 
-  const demoTestCases = await upsertDemoDocument(DocumentType.TEST_CASE_SET, "Demo Project - Test Cases");
-  const demoChecklist = await upsertDemoDocument(DocumentType.CHECKLIST, "Demo Project - Checklist");
+  const demoTestCases = await upsertDemoDocument(
+    DocumentType.TEST_CASE_SET,
+    "Demo Project - Test Cases"
+  );
+  const demoChecklist = await upsertDemoDocument(
+    DocumentType.CHECKLIST,
+    "Demo Project - Checklist"
+  );
   const demoBug = await upsertDemoDocument(DocumentType.BUG_REPORT, "Demo Project - Bug Report");
-  const demoApi = await upsertDemoDocument(DocumentType.API_TEST_SET, "Demo Project - API Test Ideas");
+  const demoApi = await upsertDemoDocument(
+    DocumentType.API_TEST_SET,
+    "Demo Project - API Test Ideas"
+  );
 
   async function upsertItemsForDoc(
     documentId: string,
-    items: Array<{ itemType: ItemType; title: string; contentJson: Prisma.InputJsonValue; reviewStatus?: ReviewStatus }>
+    items: Array<{
+      itemType: ItemType;
+      title: string;
+      contentJson: Prisma.InputJsonValue;
+      reviewStatus?: ReviewStatus;
+    }>
   ) {
     await prisma.generatedItem.deleteMany({ where: { documentId } });
     await prisma.generatedItem.createMany({
@@ -75,7 +89,13 @@ async function main() {
         type: "positive",
         preconditions: "User is on registration page",
         testData: "email: user@example.com, password: Password123, confirmPassword: Password123",
-        steps: ["Open registration page", "Enter unique email", "Enter strong password", "Confirm password", "Click Register"],
+        steps: [
+          "Open registration page",
+          "Enter unique email",
+          "Enter strong password",
+          "Confirm password",
+          "Click Register"
+        ],
         expectedResult: "Success message displayed and user redirected to dashboard",
         assumptions: "Email format validation is enabled and email is not already registered",
         sourceEvidence: "Demo Project input data",
@@ -90,8 +110,15 @@ async function main() {
         priority: "High",
         type: "negative",
         preconditions: "Email already exists",
-        testData: "email: existing@example.com, password: Password123, confirmPassword: Password123",
-        steps: ["Open registration page", "Enter existing email", "Enter password", "Confirm password", "Click Register"],
+        testData:
+          "email: existing@example.com, password: Password123, confirmPassword: Password123",
+        steps: [
+          "Open registration page",
+          "Enter existing email",
+          "Enter password",
+          "Confirm password",
+          "Click Register"
+        ],
         expectedResult: "Clear error shown and user remains on registration page",
         assumptions: "Uniqueness constraint is enforced server-side",
         sourceEvidence: "Demo Project input data",
@@ -109,7 +136,8 @@ async function main() {
         title: "Happy path: registration form validation",
         category: "Core validation",
         type: "basic",
-        description: "Valid email and strong password should allow account creation and show success state.",
+        description:
+          "Valid email and strong password should allow account creation and show success state.",
         assumptions: "Frontend + backend validation are aligned",
         sourceEvidence: "Demo Project input data"
       }
@@ -121,7 +149,8 @@ async function main() {
         title: "Negative: existing email handling",
         category: "Negative scenarios",
         type: "negative",
-        description: "Existing email should produce a clear error without exposing sensitive information unnecessarily.",
+        description:
+          "Existing email should produce a clear error without exposing sensitive information unnecessarily.",
         assumptions: "Uniqueness constraint is enforced",
         sourceEvidence: "Demo Project input data"
       }
@@ -137,7 +166,12 @@ async function main() {
         title: "Bug draft: registration accepts invalid email format",
         environment: "Web app (demo)",
         preconditions: "User is on registration page",
-        stepsToReproduce: ["Enter invalid email format", "Enter any password", "Confirm password", "Click Register"],
+        stepsToReproduce: [
+          "Enter invalid email format",
+          "Enter any password",
+          "Confirm password",
+          "Click Register"
+        ],
         actualResult: "UI allows submission or returns unclear error message.",
         expectedResult: "User gets clear validation error and submission is blocked.",
         severity: "Medium",
@@ -188,20 +222,41 @@ async function main() {
       type === DocumentType.TEST_CASE_SET
         ? {
             overallScore: 86,
-            strengths: ["Includes positive and negative registration scenarios", "Clear preconditions and expected outcomes"],
-            weaknesses: ["Some edge validation scenarios may be missing (e.g., whitespace in email)", "Assumptions are not fully detailed"],
-            suggestions: ["Add edge cases for email casing/whitespace", "Add rate-limiting and lockout scenarios if applicable"],
+            strengths: [
+              "Includes positive and negative registration scenarios",
+              "Clear preconditions and expected outcomes"
+            ],
+            weaknesses: [
+              "Some edge validation scenarios may be missing (e.g., whitespace in email)",
+              "Assumptions are not fully detailed"
+            ],
+            suggestions: [
+              "Add edge cases for email casing/whitespace",
+              "Add rate-limiting and lockout scenarios if applicable"
+            ],
             explainability: {
-              whyScoreGiven: ["Covers key flows: success and major failure modes.", "Steps and expected results are readable and actionable."],
-              whatIsMissing: ["Edge validation coverage (whitespace, casing)", "Security-related negative checks (error leakage, rate limits)."]
+              whyScoreGiven: [
+                "Covers key flows: success and major failure modes.",
+                "Steps and expected results are readable and actionable."
+              ],
+              whatIsMissing: [
+                "Edge validation coverage (whitespace, casing)",
+                "Security-related negative checks (error leakage, rate limits)."
+              ]
             }
           }
         : type === DocumentType.CHECKLIST
           ? {
               overallScore: 80,
-              strengths: ["Grouped items for validation and negative flows", "Actionable checklist statements"],
+              strengths: [
+                "Grouped items for validation and negative flows",
+                "Actionable checklist statements"
+              ],
               weaknesses: ["May lack deeper negative/edge validations (password rules variants)"],
-              suggestions: ["Add validation items for password complexity boundaries", "Add edge-case inputs to checklist"],
+              suggestions: [
+                "Add validation items for password complexity boundaries",
+                "Add edge-case inputs to checklist"
+              ],
               explainability: {
                 whyScoreGiven: ["Checklist contains required high-level validation coverage."],
                 whatIsMissing: ["More validation detail per rule and additional edge inputs."]
@@ -210,22 +265,37 @@ async function main() {
           : type === DocumentType.BUG_REPORT
             ? {
                 overallScore: 78,
-                strengths: ["Bug draft has clear reproduction steps and expected/actual separation"],
+                strengths: [
+                  "Bug draft has clear reproduction steps and expected/actual separation"
+                ],
                 weaknesses: ["Severity/priority suggestions are generic"],
-                suggestions: ["Add specific UI element/field references", "Add additional data validation checks"],
+                suggestions: [
+                  "Add specific UI element/field references",
+                  "Add additional data validation checks"
+                ],
                 explainability: {
                   whyScoreGiven: ["StepsToReproduce and results are clear."],
-                  whatIsMissing: ["Exact field-level validation and consistent environment details."]
+                  whatIsMissing: [
+                    "Exact field-level validation and consistent environment details."
+                  ]
                 }
               }
             : {
                 overallScore: 82,
-                strengths: ["Includes positive and negative API test ideas", "Has response code suggestions"],
+                strengths: [
+                  "Includes positive and negative API test ideas",
+                  "Has response code suggestions"
+                ],
                 weaknesses: ["May lack auth/security and boundary validation tests"],
-                suggestions: ["Add validation tests for missing/invalid fields", "Add auth and permission tests if endpoints require access"],
+                suggestions: [
+                  "Add validation tests for missing/invalid fields",
+                  "Add auth and permission tests if endpoints require access"
+                ],
                 explainability: {
                   whyScoreGiven: ["Covers core success and uniqueness failure paths."],
-                  whatIsMissing: ["More edge cases and security validations (auth/CSRF/rate limiting)."]
+                  whatIsMissing: [
+                    "More edge cases and security validations (auth/CSRF/rate limiting)."
+                  ]
                 }
               };
 

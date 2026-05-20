@@ -13,8 +13,10 @@ export async function POST(req: Request, ctx: Ctx) {
   const actor = await getActor();
   const doc = await prisma.document.findUnique({ where: { id } });
   if (!doc) return NextResponse.json({ error: "Not found." }, { status: 404 });
-  if ((doc as { isDemo?: boolean }).isDemo) return NextResponse.json({ error: "Demo Project is read-only." }, { status: 403 });
-  if (actor.kind === "user" && doc.userId !== actor.userId) return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+  if ((doc as { isDemo?: boolean }).isDemo)
+    return NextResponse.json({ error: "Demo Project is read-only." }, { status: 403 });
+  if (actor.kind === "user" && doc.userId !== actor.userId)
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   if (actor.kind === "guest" && doc.guestSessionId !== actor.guestSessionId)
     return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   await prisma.generatedItem.updateMany({

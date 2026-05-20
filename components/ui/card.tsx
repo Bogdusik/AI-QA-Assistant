@@ -1,13 +1,7 @@
 import { cn } from "@/lib/utils/cn";
 import type { ReactNode } from "react";
 
-export function Card({
-  className,
-  children
-}: {
-  className?: string;
-  children: ReactNode;
-}) {
+export function Card({ className, children }: { className?: string; children: ReactNode }) {
   return (
     <div
       className={cn(

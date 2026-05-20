@@ -16,11 +16,15 @@ export async function GET(req: Request, ctx: Ctx) {
     include: { generatedItems: { orderBy: { sortOrder: "asc" } } }
   });
   if (!doc) return NextResponse.json({ error: "Not found." }, { status: 404 });
-  if (!((doc as { isDemo?: boolean }).isDemo)) {
-    if (actor.kind === "user" && doc.userId !== actor.userId) return NextResponse.json({ error: "Forbidden." }, { status: 403 });
-    if (actor.kind === "guest" && doc.guestSessionId !== actor.guestSessionId) return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+  if (!(doc as { isDemo?: boolean }).isDemo) {
+    if (actor.kind === "user" && doc.userId !== actor.userId)
+      return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    if (actor.kind === "guest" && doc.guestSessionId !== actor.guestSessionId)
+      return NextResponse.json({ error: "Forbidden." }, { status: 403 });
   }
-  const filtered = doc.generatedItems.filter((i) => i.reviewStatus === "ACCEPTED" || includePending);
+  const filtered = doc.generatedItems.filter(
+    (i) => i.reviewStatus === "ACCEPTED" || includePending
+  );
   const payloadItems = filtered.map((i) => ({
     title: i.title,
     reviewStatus: i.reviewStatus,
@@ -33,10 +37,11 @@ export async function GET(req: Request, ctx: Ctx) {
         ? toPlainText(doc.title, payloadItems)
         : toMarkdown(doc.title, payloadItems);
 
-  const safeFilename = doc.title
-    .replace(/[^a-zA-Z0-9_\-\s]/g, "")
-    .replace(/\s+/g, "_")
-    .slice(0, 100) || "export";
+  const safeFilename =
+    doc.title
+      .replace(/[^a-zA-Z0-9_\-\s]/g, "")
+      .replace(/\s+/g, "_")
+      .slice(0, 100) || "export";
 
   return new Response(content, {
     headers: {

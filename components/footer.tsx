@@ -38,10 +38,10 @@ export function Footer() {
         </div>
 
         <div className="mt-6 text-xs text-slate-500">
-          © {new Date().getFullYear()} AI QA Assistant (MVP). All generated suggestions require human review before export.
+          © {new Date().getFullYear()} AI QA Assistant (MVP). All generated suggestions require
+          human review before export.
         </div>
       </div>
     </footer>
   );
 }
-

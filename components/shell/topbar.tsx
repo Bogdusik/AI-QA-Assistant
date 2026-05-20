@@ -39,34 +39,63 @@ export function Topbar() {
           </summary>
           <div className="absolute right-0 z-20 mt-2 w-56 rounded-md border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-200 dark:bg-white">
             <nav className="space-y-1 text-sm">
-              <Link className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100" href="/dashboard">
+              <Link
+                className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100"
+                href="/dashboard"
+              >
                 Dashboard
               </Link>
-              <Link className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100" href="/documents">
+              <Link
+                className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100"
+                href="/documents"
+              >
                 Documents
               </Link>
-              <Link className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100" href="/api-practice">
+              <Link
+                className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100"
+                href="/api-practice"
+              >
                 API Practice
               </Link>
-              <Link className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100" href="/sql-practice">
+              <Link
+                className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100"
+                href="/sql-practice"
+              >
                 SQL Practice
               </Link>
-              <Link className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100" href="/settings">
+              <Link
+                className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100"
+                href="/settings"
+              >
                 Settings
               </Link>
               <details>
-                <summary className="cursor-pointer rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100">Generate</summary>
+                <summary className="cursor-pointer rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100">
+                  Generate
+                </summary>
                 <div className="space-y-1 px-1 pb-1">
-                  <Link className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100" href="/generate/test-cases">
+                  <Link
+                    className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100"
+                    href="/generate/test-cases"
+                  >
                     Test Cases
                   </Link>
-                  <Link className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100" href="/generate/checklist">
+                  <Link
+                    className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100"
+                    href="/generate/checklist"
+                  >
                     Checklist
                   </Link>
-                  <Link className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100" href="/generate/bug-report">
+                  <Link
+                    className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100"
+                    href="/generate/bug-report"
+                  >
                     Bug Report
                   </Link>
-                  <Link className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100" href="/generate/api-ideas">
+                  <Link
+                    className="block rounded-lg p-2 hover:bg-slate-50 dark:hover:bg-slate-100"
+                    href="/generate/api-ideas"
+                  >
                     API Ideas
                   </Link>
                 </div>
@@ -78,13 +107,17 @@ export function Topbar() {
 
       <div className="container-app hidden items-center justify-between py-3 lg:flex">
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium text-slate-700 dark:text-slate-900">{pageLabel}</p>
+          <p className="truncate text-sm font-medium text-slate-700 dark:text-slate-900">
+            {pageLabel}
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
           {status === "loading" ? null : session ? (
             <>
-              <span className="hidden text-xs text-slate-500 md:inline dark:text-slate-700">{session.user?.email}</span>
+              <span className="hidden text-xs text-slate-500 md:inline dark:text-slate-700">
+                {session.user?.email}
+              </span>
               <Button
                 variant="outline"
                 type="button"
@@ -110,4 +143,3 @@ export function Topbar() {
     </div>
   );
 }
-
