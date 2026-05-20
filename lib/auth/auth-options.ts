@@ -3,6 +3,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/db/prisma";
 import { verifyPassword } from "@/lib/auth/password";
 
+if (!process.env.AUTH_SECRET) {
+  throw new Error("AUTH_SECRET environment variable is required.");
+}
+
 export const authOptions: NextAuthOptions = {
   secret: process.env.AUTH_SECRET,
   session: { strategy: "jwt" },
