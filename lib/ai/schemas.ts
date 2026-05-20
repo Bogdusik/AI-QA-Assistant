@@ -3,11 +3,14 @@ import { z } from "zod";
 export const testCaseSchema = z.object({
   title: z.preprocess((v) => (v == null ? undefined : v), z.string().min(1)),
   priority: z.preprocess((v) => (v == null ? undefined : String(v)), z.string().min(1)),
-  type: z.preprocess((v) => {
-    if (v == null) return undefined;
-    const s = String(v).toLowerCase().trim();
-    return s;
-  }, z.enum(["positive", "negative", "edge"])),
+  type: z.preprocess(
+    (v) => {
+      if (v == null) return undefined;
+      const s = String(v).toLowerCase().trim();
+      return s;
+    },
+    z.enum(["positive", "negative", "edge"])
+  ),
   preconditions: z.preprocess((v) => (v == null ? undefined : String(v)), z.string().min(1)),
   testData: z.preprocess((v) => {
     if (v == null) return undefined;
