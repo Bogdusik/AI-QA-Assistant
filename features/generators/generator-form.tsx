@@ -84,13 +84,14 @@ export function GeneratorForm({
     }
   }
 
+  const selectClass =
+    "w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-white/30 hover:border-white/20 focus:border-white/40 focus:shadow-[0_0_10px_rgba(255,255,255,0.08)] transition-all duration-200";
+
   return (
     <Card className="max-w-5xl overflow-hidden">
       <div className="border-b border-white/10 p-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-          {titleLabel}
-        </h1>
-        <p className="mt-2 text-sm leading-relaxed text-slate-400">
+        <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">{titleLabel}</h1>
+        <p className="mt-2 text-sm leading-relaxed text-white/60">
           Provide clear input and optional context. The generator returns reviewable output you can
           accept, reject, or improve.
         </p>
@@ -98,8 +99,8 @@ export function GeneratorForm({
 
       <form onSubmit={onSubmit} className="mt-5 space-y-4 px-6 pb-6">
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-1 text-sm text-slate-300">
-            <span className="block font-medium">Document title</span>
+          <label className="space-y-1 text-sm text-white/70">
+            <span className="block font-medium text-white">Document title</span>
             <Input
               id="doc-title"
               placeholder="Document title"
@@ -108,8 +109,8 @@ export function GeneratorForm({
               required
             />
           </label>
-          <label className="space-y-1 text-sm text-slate-300">
-            <span className="block font-medium">Optional URL</span>
+          <label className="space-y-1 text-sm text-white/70">
+            <span className="block font-medium text-white">Optional URL</span>
             <Input
               id="source-url"
               placeholder="Optional URL"
@@ -120,13 +121,13 @@ export function GeneratorForm({
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="text-sm text-slate-300">
-            <span className="mb-2 block font-medium">Screenshot upload (optional)</span>
+          <label className="text-sm text-white/70">
+            <span className="mb-2 block font-medium text-white">Screenshot upload (optional)</span>
             <input
               id="source-screenshot"
               type="file"
               accept="image/png,image/jpeg,image/webp"
-              className="text-sm text-slate-400 file:mr-3 file:cursor-pointer file:rounded-md file:border file:border-white/10 file:bg-slate-800 file:px-3 file:py-1.5 file:text-sm file:text-slate-300 file:transition-colors file:hover:bg-slate-700 file:hover:text-white"
+              className="text-sm text-white/40 file:mr-3 file:cursor-pointer file:rounded-md file:border file:border-white/10 file:bg-white/5 file:px-3 file:py-1.5 file:text-sm file:text-white/70 file:transition-all file:duration-200 file:hover:bg-white/10 file:hover:text-white"
               onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
@@ -138,16 +139,16 @@ export function GeneratorForm({
               }}
             />
             {screenshotName && (
-              <span className="mt-1 block text-xs text-slate-500">Uploaded: {screenshotName}</span>
+              <span className="mt-1 block text-xs text-white/40">Uploaded: {screenshotName}</span>
             )}
           </label>
-          <label className="text-sm text-slate-300">
-            <span className="mb-2 block font-medium">PDF upload (optional)</span>
+          <label className="text-sm text-white/70">
+            <span className="mb-2 block font-medium text-white">PDF upload (optional)</span>
             <input
               id="source-pdf"
               type="file"
               accept="application/pdf"
-              className="text-sm text-slate-400 file:mr-3 file:cursor-pointer file:rounded-md file:border file:border-white/10 file:bg-slate-800 file:px-3 file:py-1.5 file:text-sm file:text-slate-300 file:transition-colors file:hover:bg-slate-700 file:hover:text-white"
+              className="text-sm text-white/40 file:mr-3 file:cursor-pointer file:rounded-md file:border file:border-white/10 file:bg-white/5 file:px-3 file:py-1.5 file:text-sm file:text-white/70 file:transition-all file:duration-200 file:hover:bg-white/10 file:hover:text-white"
               onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
@@ -159,13 +160,13 @@ export function GeneratorForm({
               }}
             />
             {pdfName && (
-              <span className="mt-1 block text-xs text-slate-500">Uploaded: {pdfName}</span>
+              <span className="mt-1 block text-xs text-white/40">Uploaded: {pdfName}</span>
             )}
           </label>
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-300" htmlFor="source-text">
+          <label className="mb-1 block text-sm font-medium text-white" htmlFor="source-text">
             {sourceLabel}
           </label>
           <Textarea
@@ -176,15 +177,15 @@ export function GeneratorForm({
             required
             placeholder="Paste requirement, feature details, or bug information..."
           />
-          <p className="mt-1 text-xs text-slate-500">{sourceText.length} characters</p>
+          <p className="mt-1 text-xs text-white/40">{sourceText.length} characters</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-1 text-sm text-slate-300">
-            <span className="block font-medium">Domain</span>
+          <label className="space-y-1 text-sm text-white/70">
+            <span className="block font-medium text-white">Domain</span>
             <select
               id="domain-type"
-              className="w-full rounded-md border border-white/10 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 hover:border-white/20"
+              className={selectClass}
               value={domainType}
               onChange={(e) => setDomainType(e.target.value)}
             >
@@ -193,13 +194,13 @@ export function GeneratorForm({
               <option value="API">API</option>
               <option value="GENERAL">General</option>
             </select>
-            <p className="text-xs text-slate-500">Helps AI tailor scenarios to your environment.</p>
+            <p className="text-xs text-white/40">Helps AI tailor scenarios to your environment.</p>
           </label>
-          <label className="space-y-1 text-sm text-slate-300">
-            <span className="block font-medium">Detail level</span>
+          <label className="space-y-1 text-sm text-white/70">
+            <span className="block font-medium text-white">Detail level</span>
             <select
               id="detail-level"
-              className="w-full rounded-md border border-white/10 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 hover:border-white/20"
+              className={selectClass}
               value={detailLevel}
               onChange={(e) => setDetailLevel(e.target.value)}
             >
@@ -207,23 +208,23 @@ export function GeneratorForm({
               <option value="NORMAL">Normal</option>
               <option value="DETAILED">Detailed</option>
             </select>
-            <p className="text-xs text-slate-500">Choose how deep the generator should go.</p>
+            <p className="text-xs text-white/40">Choose how deep the generator should go.</p>
           </label>
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-300" htmlFor="extra-payload">
+          <label className="mb-1 block text-sm font-medium text-white" htmlFor="extra-payload">
             Structured extra context (JSON)
           </label>
           <Textarea
             id="extra-payload"
-            className="font-mono text-slate-300"
+            className="font-mono text-white/70"
             value={extraPayload}
             onChange={(e) => setExtraPayload(e.target.value)}
             rows={6}
             placeholder={payloadHint}
           />
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-white/40">
             Tip: use this for acceptance criteria, edge cases, constraints, or sample inputs.
           </p>
         </div>
@@ -235,15 +236,12 @@ export function GeneratorForm({
         )}
 
         {loading ? (
-          <div className="relative inline-flex h-10 w-40 select-none items-center justify-center overflow-hidden rounded-md bg-indigo-500 text-sm font-medium text-white">
+          <div className="relative inline-flex h-10 w-40 select-none items-center justify-center overflow-hidden rounded-md bg-white text-sm font-medium text-black">
             <span className="relative z-10">Generating…</span>
             <div className="shimmer-overlay" />
           </div>
         ) : (
-          <Button
-            type="submit"
-            className="w-full border-indigo-500 bg-indigo-500 text-white hover:bg-indigo-600 sm:w-auto"
-          >
+          <Button type="submit" className="w-full sm:w-auto">
             <Sparkles className="mr-2 h-4 w-4" />
             Generate
           </Button>

@@ -1,12 +1,12 @@
 import { Card } from "@/components/ui/card";
 
 const CODE_CLASS =
-  "rounded-lg border border-white/10 bg-slate-900/80 p-4 text-xs text-slate-300 overflow-auto";
+  "rounded-lg border border-white/10 bg-white/5 p-4 text-xs text-white/70 overflow-auto";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="space-y-3">
-      <h2 className="text-xl font-semibold text-white">{title}</h2>
+      <h2 className="text-xl font-bold text-white">{title}</h2>
       {children}
     </section>
   );
@@ -17,7 +17,7 @@ export default function ApiPracticePage() {
     <div className="space-y-8">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold text-white">API Practice Pack</h1>
-        <p className="text-slate-400">
+        <p className="text-white/60">
           A beginner-friendly guide to practice API testing using the real endpoints of AI QA
           Assistant. This is documentation for learning and Postman practice, not an execution
           engine.
@@ -25,7 +25,7 @@ export default function ApiPracticePage() {
       </div>
 
       <Section title="What is API testing?">
-        <p className="text-slate-400">
+        <p className="text-white/60">
           API testing validates behavior at the HTTP layer: request/response correctness, status
           codes, schema validation, authentication/authorization, and error handling—without using
           browser automation.
@@ -36,23 +36,23 @@ export default function ApiPracticePage() {
         <div className="grid gap-4 md:grid-cols-2">
           <Card className="space-y-2">
             <p className="font-semibold text-white">GET</p>
-            <p className="text-sm text-slate-400">Read data. Should not change server state.</p>
+            <p className="text-sm text-white/60">Read data. Should not change server state.</p>
           </Card>
           <Card className="space-y-2">
             <p className="font-semibold text-white">POST</p>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-white/60">
               Create or trigger an action (e.g., generate a document).
             </p>
           </Card>
           <Card className="space-y-2">
             <p className="font-semibold text-white">PUT</p>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-white/60">
               Replace an existing resource (not heavily used in this MVP).
             </p>
           </Card>
           <Card className="space-y-2">
             <p className="font-semibold text-white">DELETE</p>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-white/60">
               Remove a resource (documents only; demo is read-only).
             </p>
           </Card>
@@ -75,14 +75,14 @@ export default function ApiPracticePage() {
               <p className="font-semibold text-white">
                 {code} • {label}
               </p>
-              <p className="text-sm text-slate-400">{desc}</p>
+              <p className="text-sm text-white/60">{desc}</p>
             </Card>
           ))}
         </div>
       </Section>
 
       <Section title="How to test this project with Postman">
-        <p className="text-slate-400">
+        <p className="text-white/60">
           Recommended workflow:
           <span className="font-medium text-white">
             {" "}
@@ -97,7 +97,7 @@ export default function ApiPracticePage() {
         <div className="space-y-6">
           <Card className="space-y-3">
             <h3 className="text-lg font-semibold text-white">1) Register user</h3>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-white/60">
               Create a user account for authenticated requests.
             </p>
 
@@ -133,7 +133,7 @@ export default function ApiPracticePage() {
             </pre>
 
             <p className="text-sm font-medium text-white">What to verify (QA)</p>
-            <ul className="list-disc pl-5 text-sm text-slate-400">
+            <ul className="list-disc pl-5 text-sm text-white/60">
               <li>Status code matches scenario</li>
               <li>No sensitive details in error messages</li>
               <li>Duplicate email returns 409</li>
@@ -142,7 +142,7 @@ export default function ApiPracticePage() {
 
           <Card className="space-y-3">
             <h3 className="text-lg font-semibold text-white">2) Login (NextAuth Credentials)</h3>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-white/60">
               This MVP uses NextAuth credentials. You must send a CSRF token. After login, your
               browser/session cookie is required for authenticated endpoints.
             </p>
@@ -185,7 +185,7 @@ GET /api/auth/session`}
             </pre>
 
             <p className="text-sm font-medium text-white">What to verify (QA)</p>
-            <ul className="list-disc pl-5 text-sm text-slate-400">
+            <ul className="list-disc pl-5 text-sm text-white/60">
               <li>After login, call `GET /api/auth/session` and verify user id/email</li>
               <li>Wrong password returns error (commonly 401/200 with error depending on flow)</li>
               <li>Check cookies are present in Postman (Cookie header)</li>
@@ -194,7 +194,7 @@ GET /api/auth/session`}
 
           <Card className="space-y-3">
             <h3 className="text-lg font-semibold text-white">3) List documents</h3>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-white/60">
               Filters: q, type, status. This endpoint returns documents visible to the actor (user
               or guest).
             </p>
@@ -228,7 +228,7 @@ Cookie: (paste your session cookies here)`}
             </pre>
 
             <p className="text-sm font-medium text-white">What to verify (QA)</p>
-            <ul className="list-disc pl-5 text-sm text-slate-400">
+            <ul className="list-disc pl-5 text-sm text-white/60">
               <li>Search is case-insensitive</li>
               <li>Type/status filters work</li>
               <li>No documents from other users</li>
@@ -239,7 +239,7 @@ Cookie: (paste your session cookies here)`}
             <h3 className="text-lg font-semibold text-white">
               4) Generate a document (QA generation)
             </h3>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-white/60">
               Creates a new Document and GeneratedItems in <strong>PENDING</strong> review status.
             </p>
 
@@ -277,7 +277,7 @@ Cookie: (paste your session cookies here)`}
             </pre>
 
             <p className="text-sm font-medium text-white">What to verify (QA)</p>
-            <ul className="list-disc pl-5 text-sm text-slate-400">
+            <ul className="list-disc pl-5 text-sm text-white/60">
               <li>Document created with correct type/title</li>
               <li>Generated items start as PENDING</li>
               <li>Guest lock-in blocks different generator types</li>
@@ -288,7 +288,7 @@ Cookie: (paste your session cookies here)`}
             <h3 className="text-lg font-semibold text-white">
               5) Export document (accepted items)
             </h3>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-white/60">
               Export includes <strong>ACCEPTED</strong> items by default. Use `includePending=true`
               only if you explicitly want it.
             </p>
@@ -316,7 +316,7 @@ Cookie: (paste your session cookies here)`}
             </pre>
 
             <p className="text-sm font-medium text-white">What to verify (QA)</p>
-            <ul className="list-disc pl-5 text-sm text-slate-400">
+            <ul className="list-disc pl-5 text-sm text-white/60">
               <li>Export does not include rejected items</li>
               <li>Export includes accepted items only (default)</li>
               <li>Forbidden/Not found for other users</li>
@@ -327,7 +327,7 @@ Cookie: (paste your session cookies here)`}
             <h3 className="text-lg font-semibold text-white">
               6) Quality analysis (uses accepted items)
             </h3>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-white/60">
               Sends accepted items to AI and saves QualityAnalysis linked to the document. Demo
               documents are read-only and regeneration is blocked.
             </p>
@@ -361,7 +361,7 @@ Cookie: (paste your session cookies here)`}
             </pre>
 
             <p className="text-sm font-medium text-white">What to verify (QA)</p>
-            <ul className="list-disc pl-5 text-sm text-slate-400">
+            <ul className="list-disc pl-5 text-sm text-white/60">
               <li>Requires at least one ACCEPTED item</li>
               <li>Validation errors return 400</li>
               <li>Demo documents return 403</li>
@@ -374,7 +374,7 @@ Cookie: (paste your session cookies here)`}
         <div className="space-y-4">
           <Card className="space-y-2">
             <p className="font-semibold text-white">POST /api/register</p>
-            <ul className="list-disc pl-5 text-sm text-slate-400">
+            <ul className="list-disc pl-5 text-sm text-white/60">
               <li>Positive: valid data → 200</li>
               <li>Negative: duplicate email → 409</li>
               <li>Validation: missing fields → 400</li>
@@ -384,7 +384,7 @@ Cookie: (paste your session cookies here)`}
           </Card>
           <Card className="space-y-2">
             <p className="font-semibold text-white">POST /api/generate</p>
-            <ul className="list-disc pl-5 text-sm text-slate-400">
+            <ul className="list-disc pl-5 text-sm text-white/60">
               <li>Positive: generate TEST_CASE_SET → 200 documentId</li>
               <li>Negative: guest lock-in to different generator → 400</li>
               <li>Validation: invalid URL format/sourceUrl → 400</li>
@@ -394,7 +394,7 @@ Cookie: (paste your session cookies here)`}
           </Card>
           <Card className="space-y-2">
             <p className="font-semibold text-white">GET /api/documents</p>
-            <ul className="list-disc pl-5 text-sm text-slate-400">
+            <ul className="list-disc pl-5 text-sm text-white/60">
               <li>Positive: filters work → 200 with documents</li>
               <li>Negative: other user&apos;s doc access → not found/forbidden behavior</li>
               <li>Validation: malformed query params</li>
@@ -404,7 +404,7 @@ Cookie: (paste your session cookies here)`}
           </Card>
           <Card className="space-y-2">
             <p className="font-semibold text-white">GET /api/documents/{`{documentId}`}/export</p>
-            <ul className="list-disc pl-5 text-sm text-slate-400">
+            <ul className="list-disc pl-5 text-sm text-white/60">
               <li>Positive: accepted-only export → 200</li>
               <li>Negative: includePending=true with no accepted items</li>
               <li>Validation: invalid format parameter</li>
@@ -416,7 +416,7 @@ Cookie: (paste your session cookies here)`}
             <p className="font-semibold text-white">
               POST /api/documents/{`{documentId}`}/quality-analysis
             </p>
-            <ul className="list-disc pl-5 text-sm text-slate-400">
+            <ul className="list-disc pl-5 text-sm text-white/60">
               <li>Positive: at least one ACCEPTED item → 200 analysis</li>
               <li>Negative: no accepted items → 400 &quot;No accepted items found...&quot;</li>
               <li>Validation: missing docId → 404</li>
@@ -429,7 +429,7 @@ Cookie: (paste your session cookies here)`}
 
       <Section title="What to check in API testing">
         <Card>
-          <ul className="list-disc space-y-2 pl-5 text-sm text-slate-400">
+          <ul className="list-disc space-y-2 pl-5 text-sm text-white/60">
             <li>HTTP status code matches expected scenario</li>
             <li>Response body schema is valid (no missing required fields)</li>
             <li>Error messages are clear and non-technical where possible</li>

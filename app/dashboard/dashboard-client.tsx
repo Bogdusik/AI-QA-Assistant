@@ -60,8 +60,6 @@ const ARTIFACT_CARDS = [
     label: "Test Cases",
     href: "/generate/test-cases",
     icon: CheckSquare,
-    accent: "from-blue-600 to-indigo-700",
-    glow: "group-hover:shadow-blue-500/20",
     span: "col-span-2",
     description:
       "Generate structured positive, negative, and edge-case test scenarios from requirements."
@@ -71,8 +69,6 @@ const ARTIFACT_CARDS = [
     label: "Checklists",
     href: "/generate/checklist",
     icon: FileText,
-    accent: "from-violet-600 to-purple-700",
-    glow: "group-hover:shadow-violet-500/20",
     span: "col-span-1",
     description: "Build review-ready QA checklists mapped to feature requirements."
   },
@@ -81,8 +77,6 @@ const ARTIFACT_CARDS = [
     label: "Bug Reports",
     href: "/generate/bug-report",
     icon: Bug,
-    accent: "from-rose-600 to-red-700",
-    glow: "group-hover:shadow-rose-500/20",
     span: "col-span-1",
     description: "Turn vague bug descriptions into structured, reproducible reports."
   },
@@ -91,8 +85,6 @@ const ARTIFACT_CARDS = [
     label: "API Test Ideas",
     href: "/generate/api-ideas",
     icon: Braces,
-    accent: "from-emerald-600 to-teal-700",
-    glow: "group-hover:shadow-emerald-500/20",
     span: "col-span-2",
     description: "Explore validation, auth, and edge-case scenarios for your API endpoints."
   }
@@ -108,23 +100,26 @@ export function DashboardClient({ total, byType, byReview, recentDocs }: Props) 
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 p-7 shadow-xl"
+        className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 via-transparent to-white/5 p-7"
       >
-        {/* Background grid pattern */}
+        {/* Radial glow */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.08),transparent_70%)]"
+        />
+        {/* Grid pattern */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px]"
         />
 
         <div className="relative flex flex-wrap items-start justify-between gap-6">
           <div className="space-y-2">
-            <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
-              Dashboard
-            </p>
-            <h1 className="text-2xl font-semibold text-white sm:text-3xl">Welcome back</h1>
-            <p className="max-w-xl text-sm leading-relaxed text-slate-400">
+            <p className="text-xs font-medium uppercase tracking-widest text-white/40">Dashboard</p>
+            <h1 className="text-2xl font-bold text-white sm:text-3xl">Welcome back</h1>
+            <p className="max-w-xl text-sm leading-relaxed text-white/60">
               Build QA artifacts faster with reviewable, explainable AI suggestions. Everything
-              starts as <strong className="text-slate-300">Pending</strong> until you approve.
+              starts as <strong className="text-white">Pending</strong> until you approve.
             </p>
           </div>
 
@@ -154,9 +149,9 @@ export function DashboardClient({ total, byType, byReview, recentDocs }: Props) 
         {/* Total docs counter */}
         <div className="relative mt-6 flex items-center gap-3">
           <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-sm">
-            <TrendingUp className="h-4 w-4 text-brand-400" />
+            <TrendingUp className="h-4 w-4 text-white/60" />
             <span className="text-sm font-medium text-white">{total}</span>
-            <span className="text-xs text-slate-400">total documents</span>
+            <span className="text-xs text-white/40">total documents</span>
           </div>
         </div>
       </motion.section>
@@ -167,7 +162,7 @@ export function DashboardClient({ total, byType, byReview, recentDocs }: Props) 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.15 }}
-          className="mb-4 text-xs font-medium uppercase tracking-widest text-slate-500"
+          className="mb-4 text-xs font-medium uppercase tracking-widest text-white/40"
         >
           Generate
         </motion.p>
@@ -180,20 +175,11 @@ export function DashboardClient({ total, byType, byReview, recentDocs }: Props) 
 
               return (
                 <motion.div key={card.key} variants={fadeUp} className={card.span}>
-                  <BentoGridItem
-                    className={`h-full bg-gradient-to-br from-slate-900/95 to-slate-800/95 shadow-lg transition-shadow duration-300 ${card.glow}`}
-                  >
-                    {/* Coloured accent strip */}
-                    <div
-                      className={`absolute left-0 top-0 h-px w-full bg-gradient-to-r ${card.accent} opacity-60`}
-                    />
-
+                  <BentoGridItem className="h-full">
                     <div className="flex h-full flex-col p-6">
                       {/* Icon + count row */}
                       <div className="flex items-start justify-between">
-                        <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${card.accent} shadow-lg`}
-                        >
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/10 transition-all duration-300 group-hover:bg-white/15 group-hover:shadow-[0_0_15px_rgba(255,255,255,0.15)]">
                           <Icon className="h-5 w-5 text-white" />
                         </div>
                         <span className="text-2xl font-bold tabular-nums text-white">{count}</span>
@@ -202,7 +188,7 @@ export function DashboardClient({ total, byType, byReview, recentDocs }: Props) 
                       {/* Label + description */}
                       <div className="mt-4 flex-1">
                         <h3 className="text-base font-semibold text-white">{card.label}</h3>
-                        <p className="mt-1 text-sm leading-relaxed text-slate-400">
+                        <p className="mt-1 text-sm leading-relaxed text-white/60">
                           {card.description}
                         </p>
                       </div>
@@ -212,7 +198,7 @@ export function DashboardClient({ total, byType, byReview, recentDocs }: Props) 
                         <motion.div
                           whileHover={{ x: 4 }}
                           transition={{ duration: 0.15 }}
-                          className="flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-white"
+                          className="flex items-center gap-1.5 text-xs font-medium text-white/60 hover:text-white transition-colors duration-200"
                         >
                           <Sparkles className="h-3.5 w-3.5" />
                           Generate
@@ -236,21 +222,18 @@ export function DashboardClient({ total, byType, byReview, recentDocs }: Props) 
         className="space-y-3"
       >
         <div className="flex items-end justify-between">
-          <h2 className="text-lg font-semibold text-white">Recent documents</h2>
+          <h2 className="text-lg font-bold text-white">Recent documents</h2>
           <Link href="/documents">
-            <Button
-              variant="outline"
-              className="border-white/20 bg-transparent text-xs text-slate-300 hover:bg-white/10 hover:text-white"
-            >
+            <Button variant="outline" className="text-xs">
               View all
             </Button>
           </Link>
         </div>
 
         {recentDocs.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-white/10 bg-slate-800/60 p-6 text-center backdrop-blur-sm">
-            <p className="text-sm font-medium text-slate-300">No documents yet</p>
-            <p className="mt-1 text-sm text-slate-500">
+          <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-center backdrop-blur-sm">
+            <p className="text-sm font-medium text-white">No documents yet</p>
+            <p className="mt-1 text-sm text-white/60">
               Generate your first QA artifact from the section above.
             </p>
           </div>
@@ -263,16 +246,13 @@ export function DashboardClient({ total, byType, byReview, recentDocs }: Props) 
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.38 + i * 0.06, duration: 0.3 }}
               >
-                <div className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-800/60 px-4 py-3 backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:shadow-md hover:shadow-indigo-500/10">
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm transition-all duration-200 hover:border-white/30 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)]">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-white">{doc.title}</p>
-                    <p className="mt-0.5 text-xs text-slate-500">{doc.type.replace(/_/g, " ")}</p>
+                    <p className="mt-0.5 text-xs text-white/40">{doc.type.replace(/_/g, " ")}</p>
                   </div>
                   <Link href={`/documents/${doc.id}`}>
-                    <Button
-                      variant="outline"
-                      className="shrink-0 border-white/20 bg-transparent text-xs text-slate-300 hover:bg-white/10 hover:text-white"
-                    >
+                    <Button variant="outline" className="shrink-0 text-xs">
                       Open
                     </Button>
                   </Link>

@@ -19,7 +19,7 @@ export function BentoGridItem({
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-800/60 backdrop-blur-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:border-white/20 hover:shadow-xl hover:shadow-indigo-500/10",
+        "group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:border-white/30 hover:shadow-[0_0_40px_rgba(255,255,255,0.08)]",
         className
       )}
     >

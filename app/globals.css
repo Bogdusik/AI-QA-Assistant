@@ -5,7 +5,7 @@
 /* ─── Base ─────────────────────────────────────────────────────────────── */
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+  @apply bg-black text-white antialiased;
 }
 
 /* ─── Typography tokens ─────────────────────────────────────────────────── */
@@ -15,7 +15,7 @@ body {
 }
 
 .qa-heading {
-  @apply font-semibold tracking-tight text-slate-900 dark:text-slate-900;
+  @apply font-bold tracking-tight text-white;
 }
 .qa-h1 {
   @apply qa-heading text-2xl sm:text-3xl;
@@ -24,10 +24,10 @@ body {
   @apply qa-heading text-lg sm:text-xl;
 }
 .qa-body {
-  @apply text-sm leading-relaxed text-slate-700 dark:text-slate-700;
+  @apply text-sm leading-relaxed text-white/60;
 }
 .qa-label {
-  @apply text-xs font-medium text-slate-500 dark:text-slate-400;
+  @apply text-xs font-medium text-white/40;
 }
 
 /* ─── Glass card ────────────────────────────────────────────────────────── */
@@ -48,26 +48,52 @@ body {
   background: linear-gradient(
     105deg,
     transparent 40%,
-    rgba(255, 255, 255, 0.22) 50%,
+    rgba(255, 255, 255, 0.2) 50%,
     transparent 60%
   );
   animation: shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* ─── Badge glow utilities ──────────────────────────────────────────────── */
 
 .badge-glow-green {
   box-shadow:
-    0 0 10px rgba(16, 185, 129, 0.25),
-    0 0 4px rgba(16, 185, 129, 0.1);
+    0 0 10px rgba(52, 211, 153, 0.2),
+    0 0 4px rgba(52, 211, 153, 0.1);
 }
-.badge-glow-amber {
+.badge-glow-white {
   box-shadow:
-    0 0 10px rgba(245, 158, 11, 0.25),
-    0 0 4px rgba(245, 158, 11, 0.1);
+    0 0 10px rgba(255, 255, 255, 0.1),
+    0 0 4px rgba(255, 255, 255, 0.05);
 }
 .badge-glow-red {
   box-shadow:
-    0 0 10px rgba(239, 68, 68, 0.25),
-    0 0 4px rgba(239, 68, 68, 0.1);
+    0 0 10px rgba(248, 113, 113, 0.2),
+    0 0 4px rgba(248, 113, 113, 0.1);
+}
+
+/* ─── White glow utilities ──────────────────────────────────────────────── */
+
+.glow-btn {
+  transition: all 0.3s ease;
+}
+.glow-btn:hover {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+.glow-card:hover {
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+}
+
+.glow-bento:hover {
+  box-shadow: 0 0 40px rgba(255, 255, 255, 0.08);
 }
