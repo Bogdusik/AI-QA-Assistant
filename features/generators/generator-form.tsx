@@ -86,16 +86,19 @@ export function GeneratorForm({
 
   return (
     <Card className="max-w-5xl overflow-hidden">
-      <div className="rounded-2xl bg-gradient-to-r from-brand-50 via-white to-white p-6">
-        <h1 className="qa-h1">{titleLabel}</h1>
-        <p className="qa-body mt-2">
+      <div className="border-b border-white/10 p-6">
+        <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+          {titleLabel}
+        </h1>
+        <p className="mt-2 text-sm leading-relaxed text-slate-400">
           Provide clear input and optional context. The generator returns reviewable output you can
           accept, reject, or improve.
         </p>
       </div>
-      <form onSubmit={onSubmit} className="mt-5 px-6 pb-6 space-y-4">
+
+      <form onSubmit={onSubmit} className="mt-5 space-y-4 px-6 pb-6">
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-1 text-sm text-slate-900 dark:text-slate-900">
+          <label className="space-y-1 text-sm text-slate-300">
             <span className="block font-medium">Document title</span>
             <Input
               id="doc-title"
@@ -105,7 +108,7 @@ export function GeneratorForm({
               required
             />
           </label>
-          <label className="space-y-1 text-sm text-slate-900 dark:text-slate-900">
+          <label className="space-y-1 text-sm text-slate-300">
             <span className="block font-medium">Optional URL</span>
             <Input
               id="source-url"
@@ -115,13 +118,15 @@ export function GeneratorForm({
             />
           </label>
         </div>
+
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="text-sm text-slate-900 dark:text-slate-900">
-            <span className="mb-1 block font-medium">Screenshot upload (optional)</span>
+          <label className="text-sm text-slate-300">
+            <span className="mb-2 block font-medium">Screenshot upload (optional)</span>
             <input
               id="source-screenshot"
               type="file"
               accept="image/png,image/jpeg,image/webp"
+              className="text-sm text-slate-400 file:mr-3 file:cursor-pointer file:rounded-md file:border file:border-white/10 file:bg-slate-800 file:px-3 file:py-1.5 file:text-sm file:text-slate-300 file:transition-colors file:hover:bg-slate-700 file:hover:text-white"
               onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
@@ -133,17 +138,16 @@ export function GeneratorForm({
               }}
             />
             {screenshotName && (
-              <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">
-                Uploaded: {screenshotName}
-              </span>
+              <span className="mt-1 block text-xs text-slate-500">Uploaded: {screenshotName}</span>
             )}
           </label>
-          <label className="text-sm text-slate-900 dark:text-slate-900">
-            <span className="mb-1 block font-medium">PDF upload (optional)</span>
+          <label className="text-sm text-slate-300">
+            <span className="mb-2 block font-medium">PDF upload (optional)</span>
             <input
               id="source-pdf"
               type="file"
               accept="application/pdf"
+              className="text-sm text-slate-400 file:mr-3 file:cursor-pointer file:rounded-md file:border file:border-white/10 file:bg-slate-800 file:px-3 file:py-1.5 file:text-sm file:text-slate-300 file:transition-colors file:hover:bg-slate-700 file:hover:text-white"
               onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
@@ -155,17 +159,13 @@ export function GeneratorForm({
               }}
             />
             {pdfName && (
-              <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">
-                Uploaded: {pdfName}
-              </span>
+              <span className="mt-1 block text-xs text-slate-500">Uploaded: {pdfName}</span>
             )}
           </label>
         </div>
+
         <div>
-          <label
-            className="mb-1 block text-sm font-medium text-slate-900 dark:text-slate-900"
-            htmlFor="source-text"
-          >
+          <label className="mb-1 block text-sm font-medium text-slate-300" htmlFor="source-text">
             {sourceLabel}
           </label>
           <Textarea
@@ -176,16 +176,15 @@ export function GeneratorForm({
             required
             placeholder="Paste requirement, feature details, or bug information..."
           />
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-            {sourceText.length} characters
-          </p>
+          <p className="mt-1 text-xs text-slate-500">{sourceText.length} characters</p>
         </div>
+
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-1 text-sm text-slate-900 dark:text-slate-900">
+          <label className="space-y-1 text-sm text-slate-300">
             <span className="block font-medium">Domain</span>
             <select
               id="domain-type"
-              className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 hover:border-brand-500/50 dark:border-slate-200 dark:bg-white dark:focus:border-brand-500 dark:hover:border-brand-500/60"
+              className="w-full rounded-md border border-white/10 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 hover:border-white/20"
               value={domainType}
               onChange={(e) => setDomainType(e.target.value)}
             >
@@ -194,15 +193,13 @@ export function GeneratorForm({
               <option value="API">API</option>
               <option value="GENERAL">General</option>
             </select>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Helps AI tailor scenarios to your environment.
-            </p>
+            <p className="text-xs text-slate-500">Helps AI tailor scenarios to your environment.</p>
           </label>
-          <label className="space-y-1 text-sm text-slate-900 dark:text-slate-900">
+          <label className="space-y-1 text-sm text-slate-300">
             <span className="block font-medium">Detail level</span>
             <select
               id="detail-level"
-              className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 hover:border-brand-500/50 dark:border-slate-200 dark:bg-white dark:focus:border-brand-500 dark:hover:border-brand-500/60"
+              className="w-full rounded-md border border-white/10 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 hover:border-white/20"
               value={detailLevel}
               onChange={(e) => setDetailLevel(e.target.value)}
             >
@@ -210,41 +207,43 @@ export function GeneratorForm({
               <option value="NORMAL">Normal</option>
               <option value="DETAILED">Detailed</option>
             </select>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Choose how deep the generator should go.
-            </p>
+            <p className="text-xs text-slate-500">Choose how deep the generator should go.</p>
           </label>
         </div>
+
         <div>
-          <label
-            className="mb-1 block text-sm font-medium text-slate-900 dark:text-slate-900"
-            htmlFor="extra-payload"
-          >
+          <label className="mb-1 block text-sm font-medium text-slate-300" htmlFor="extra-payload">
             Structured extra context (JSON)
           </label>
           <Textarea
             id="extra-payload"
+            className="font-mono text-slate-300"
             value={extraPayload}
             onChange={(e) => setExtraPayload(e.target.value)}
             rows={6}
             placeholder={payloadHint}
           />
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-xs text-slate-500">
             Tip: use this for acceptance criteria, edge cases, constraints, or sample inputs.
           </p>
         </div>
+
         {error && (
-          <p className="text-sm text-red-600" role="status" aria-live="polite">
+          <p className="text-sm text-red-400" role="status" aria-live="polite">
             {error}
           </p>
         )}
+
         {loading ? (
-          <div className="relative inline-flex h-10 w-40 select-none items-center justify-center overflow-hidden rounded-md bg-brand-500 text-sm font-medium text-white">
+          <div className="relative inline-flex h-10 w-40 select-none items-center justify-center overflow-hidden rounded-md bg-indigo-500 text-sm font-medium text-white">
             <span className="relative z-10">Generating…</span>
             <div className="shimmer-overlay" />
           </div>
         ) : (
-          <Button type="submit" className="w-full sm:w-auto">
+          <Button
+            type="submit"
+            className="w-full border-indigo-500 bg-indigo-500 text-white hover:bg-indigo-600 sm:w-auto"
+          >
             <Sparkles className="mr-2 h-4 w-4" />
             Generate
           </Button>
