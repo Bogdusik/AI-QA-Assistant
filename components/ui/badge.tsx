@@ -12,13 +12,11 @@ export function Badge({
     <span
       className={cn(
         "inline-flex items-center rounded-full px-3 py-1.5 text-sm font-medium transition-shadow duration-200",
-        tone === "default" && "bg-slate-100 text-slate-700 ring-1 ring-slate-200",
-        tone === "pending" &&
-          "bg-amber-500/10 text-amber-600 ring-1 ring-amber-400/40 badge-glow-amber dark:text-amber-400",
+        tone === "default" && "border border-white/20 bg-white/5 text-white/60 badge-glow-white",
+        tone === "pending" && "border border-white/20 bg-white/5 text-white/60 badge-glow-white",
         tone === "accepted" &&
-          "bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-400/40 badge-glow-green dark:text-emerald-400",
-        tone === "rejected" &&
-          "bg-red-500/10 text-red-700 ring-1 ring-red-400/40 badge-glow-red dark:text-red-400"
+          "border border-emerald-400/30 bg-emerald-400/5 text-emerald-400 badge-glow-green",
+        tone === "rejected" && "border border-red-400/30 bg-red-400/5 text-red-400 badge-glow-red"
       )}
     >
       {children}

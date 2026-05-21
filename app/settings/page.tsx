@@ -8,34 +8,32 @@ export default async function SettingsPage() {
   const session = await getServerSession(authOptions);
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-semibold text-white">Settings</h1>
+      <h1 className="text-2xl font-bold text-white">Settings</h1>
       <Card>
         <h2 className="font-medium text-white">Account</h2>
         {session ? (
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="mt-2 text-sm text-white/60">
             Signed in as {session.user.email}. Role: {session.user.role}
           </p>
         ) : (
-          <div className="mt-2 space-y-2 text-sm text-slate-400">
+          <div className="mt-2 space-y-2 text-sm text-white/60">
             <p>You are using guest mode with limited generation usage.</p>
             <Link href="/register">
-              <Button className="border-indigo-500 bg-indigo-500 text-white hover:bg-indigo-600">
-                Create account
-              </Button>
+              <Button>Create account</Button>
             </Link>
           </div>
         )}
       </Card>
       <Card>
         <h2 className="font-medium text-white">API usage note</h2>
-        <p className="mt-2 text-sm text-slate-400">
+        <p className="mt-2 text-sm text-white/60">
           AI generations use your configured OpenAI API key. Generated suggestions require human
           review before export.
         </p>
       </Card>
       <Card>
         <h2 className="font-medium text-white">Export preferences</h2>
-        <p className="mt-2 text-sm text-slate-400">
+        <p className="mt-2 text-sm text-white/60">
           By default export includes accepted items only.
         </p>
       </Card>
