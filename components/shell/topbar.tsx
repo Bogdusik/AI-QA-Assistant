@@ -39,20 +39,65 @@ export function Topbar() {
           </summary>
           <div className="absolute right-0 z-20 mt-2 w-56 rounded-md border border-white/10 bg-slate-900 p-2 shadow-xl">
             <nav className="space-y-1 text-sm">
-              <Link className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white" href="/dashboard">Dashboard</Link>
-              <Link className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white" href="/documents">Documents</Link>
-              <Link className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white" href="/api-practice">API Practice</Link>
-              <Link className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white" href="/sql-practice">SQL Practice</Link>
-              <Link className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white" href="/settings">Settings</Link>
+              <Link
+                className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white"
+                href="/dashboard"
+              >
+                Dashboard
+              </Link>
+              <Link
+                className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white"
+                href="/documents"
+              >
+                Documents
+              </Link>
+              <Link
+                className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white"
+                href="/api-practice"
+              >
+                API Practice
+              </Link>
+              <Link
+                className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white"
+                href="/sql-practice"
+              >
+                SQL Practice
+              </Link>
+              <Link
+                className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white"
+                href="/settings"
+              >
+                Settings
+              </Link>
               <details>
                 <summary className="cursor-pointer rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white">
                   Generate
                 </summary>
                 <div className="space-y-1 px-1 pb-1">
-                  <Link className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white" href="/generate/test-cases">Test Cases</Link>
-                  <Link className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white" href="/generate/checklist">Checklist</Link>
-                  <Link className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white" href="/generate/bug-report">Bug Report</Link>
-                  <Link className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white" href="/generate/api-ideas">API Ideas</Link>
+                  <Link
+                    className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white"
+                    href="/generate/test-cases"
+                  >
+                    Test Cases
+                  </Link>
+                  <Link
+                    className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white"
+                    href="/generate/checklist"
+                  >
+                    Checklist
+                  </Link>
+                  <Link
+                    className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white"
+                    href="/generate/bug-report"
+                  >
+                    Bug Report
+                  </Link>
+                  <Link
+                    className="block rounded-lg p-2 text-slate-300 hover:bg-white/5 hover:text-white"
+                    href="/generate/api-ideas"
+                  >
+                    API Ideas
+                  </Link>
                 </div>
               </details>
             </nav>
@@ -62,17 +107,13 @@ export function Topbar() {
 
       <div className="container-app hidden items-center justify-between py-3 lg:flex">
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium text-slate-300">
-            {pageLabel}
-          </p>
+          <p className="truncate text-sm font-medium text-slate-300">{pageLabel}</p>
         </div>
 
         <div className="flex items-center gap-2">
           {status === "loading" ? null : session ? (
             <>
-              <span className="hidden text-xs text-slate-500 md:inline">
-                {session.user?.email}
-              </span>
+              <span className="hidden text-xs text-slate-500 md:inline">{session.user?.email}</span>
               <Button
                 variant="outline"
                 type="button"
