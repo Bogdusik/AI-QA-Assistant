@@ -115,9 +115,8 @@ export function Topbar() {
             <>
               <span className="hidden text-xs text-slate-500 md:inline">{session.user?.email}</span>
               <Button
-                variant="outline"
                 type="button"
-                className="border-white/20 bg-transparent text-slate-300 hover:bg-white/10 hover:text-white"
+                className="border border-white/20 bg-transparent text-white hover:bg-white/10 hover:border-white/40"
                 onClick={() => {
                   void signOut({ callbackUrl: "/" });
                 }}
@@ -128,10 +127,7 @@ export function Topbar() {
           ) : (
             <>
               <Link href="/login">
-                <Button
-                  variant="outline"
-                  className="border-white/20 bg-transparent text-slate-300 hover:bg-white/10 hover:text-white"
-                >
+                <Button className="border border-white/20 bg-transparent text-white hover:bg-white/10 hover:border-white/40">
                   Log in
                 </Button>
               </Link>
