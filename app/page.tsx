@@ -5,35 +5,32 @@ import { Button } from "@/components/ui/button";
 export default function LandingPage() {
   return (
     <div className="space-y-10">
-      <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-slate-800 to-indigo-950 p-10 shadow-xl">
+      <section className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-10">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.06),transparent_70%)]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px]"
         />
         <div className="relative">
           <h1 className="text-4xl font-bold tracking-tight text-white">AI QA Assistant</h1>
-          <p className="mt-3 max-w-2xl text-slate-300">
+          <p className="mt-3 max-w-2xl text-white/60">
             Turn requirements into QA-ready test cases, checklists, bug drafts, and API test
             ideas—then review and export with a human-in-the-loop workflow.
           </p>
           <div className="mt-6 flex gap-3">
             <Link href="/demo">
-              <Button className="border-indigo-500 bg-indigo-500 text-white hover:bg-indigo-600">
-                Try Demo
-              </Button>
+              <Button>Try Demo</Button>
             </Link>
             <Link href="/register">
-              <Button className="border-indigo-500 bg-indigo-500 text-white hover:bg-indigo-600">
-                Create account
-              </Button>
+              <Button>Create account</Button>
             </Link>
             <Link href="/dashboard">
-              <Button
-                variant="outline"
-                className="border-white/20 bg-transparent text-slate-300 hover:bg-white/10 hover:text-white"
-              >
+              <button className="border border-white/40 text-white bg-transparent px-4 py-2 rounded-xl text-sm font-medium hover:bg-white/10 transition-all duration-300">
                 Try guest mode
-              </Button>
+              </button>
             </Link>
           </div>
         </div>
@@ -60,7 +57,7 @@ export default function LandingPage() {
         ].map(([title, text]) => (
           <Card key={title}>
             <h3 className="font-semibold text-white">{title}</h3>
-            <p className="mt-2 text-sm text-slate-400">{text}</p>
+            <p className="mt-2 text-sm text-white/60">{text}</p>
           </Card>
         ))}
       </section>
