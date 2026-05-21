@@ -236,9 +236,7 @@ export function DashboardClient({ total, byType, byReview, recentDocs }: Props) 
         className="space-y-3"
       >
         <div className="flex items-end justify-between">
-          <h2 className="text-lg font-semibold text-white">
-            Recent documents
-          </h2>
+          <h2 className="text-lg font-semibold text-white">Recent documents</h2>
           <Link href="/documents">
             <Button
               variant="outline"
