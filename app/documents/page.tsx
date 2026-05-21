@@ -15,6 +15,9 @@ type Doc = {
   createdAt: string;
 };
 
+const SELECT_CLASS =
+  "rounded-md border border-white/10 bg-slate-900 px-3 py-2 text-sm text-white outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 hover:border-white/20";
+
 export default function DocumentsPage() {
   const [docs, setDocs] = useState<Doc[]>([]);
   const [q, setQ] = useState("");
@@ -47,10 +50,15 @@ export default function DocumentsPage() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-1">
-          <h1 className="qa-h1">Saved Documents</h1>
-          <p className="qa-body">Review, export, and manage generated QA artifacts.</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+            Saved Documents
+          </h1>
+          <p className="text-sm leading-relaxed text-slate-400">
+            Review, export, and manage generated QA artifacts.
+          </p>
         </div>
       </div>
+
       <Card>
         <div className="grid gap-3 md:grid-cols-4">
           <Input
@@ -61,7 +69,7 @@ export default function DocumentsPage() {
           />
           <select
             aria-label="Filter by document type"
-            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 hover:border-brand-500/50 dark:border-slate-200 dark:bg-white dark:text-slate-900 dark:focus:border-brand-500 dark:hover:border-brand-500/60"
+            className={SELECT_CLASS}
             value={type}
             onChange={(e) => setType(e.target.value)}
           >
@@ -73,7 +81,7 @@ export default function DocumentsPage() {
           </select>
           <select
             aria-label="Filter by review status"
-            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 hover:border-brand-500/50 dark:border-slate-200 dark:bg-white dark:text-slate-900 dark:focus:border-brand-500 dark:hover:border-brand-500/60"
+            className={SELECT_CLASS}
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
@@ -82,28 +90,33 @@ export default function DocumentsPage() {
             <option value="ACTIVE">Active</option>
             <option value="ARCHIVED">Archived</option>
           </select>
-          <Button onClick={load} disabled={loading}>
+          <Button
+            className="border-indigo-500 bg-indigo-500 text-white hover:bg-indigo-600"
+            onClick={load}
+            disabled={loading}
+          >
             {loading ? "Loading..." : "Apply filters"}
           </Button>
         </div>
         {error && (
-          <p className="mt-3 text-sm text-red-600" role="status" aria-live="polite">
+          <p className="mt-3 text-sm text-red-400" role="status" aria-live="polite">
             {error}
           </p>
         )}
       </Card>
+
       {loading ? (
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, idx) => (
             <Card key={idx} className="animate-pulse">
               <div className="flex items-center justify-between gap-3">
                 <div className="space-y-2">
-                  <div className="h-4 w-64 rounded bg-slate-300 dark:bg-slate-200" />
-                  <div className="h-3 w-48 rounded bg-slate-300 dark:bg-slate-200" />
+                  <div className="h-4 w-64 rounded bg-slate-700" />
+                  <div className="h-3 w-48 rounded bg-slate-700" />
                 </div>
                 <div className="flex gap-2">
-                  <div className="h-9 w-24 rounded bg-slate-300 dark:bg-slate-200" />
-                  <div className="h-9 w-24 rounded bg-slate-300 dark:bg-slate-200" />
+                  <div className="h-9 w-24 rounded bg-slate-700" />
+                  <div className="h-9 w-24 rounded bg-slate-700" />
                 </div>
               </div>
             </Card>
@@ -112,21 +125,23 @@ export default function DocumentsPage() {
       ) : docs.length === 0 ? (
         <Card className="border-dashed">
           <div className="flex items-start gap-3">
-            <FileSearch className="mt-0.5 h-5 w-5 text-brand-700" />
+            <FileSearch className="mt-0.5 h-5 w-5 text-indigo-400" />
             <div className="space-y-1">
-              <p className="text-sm font-medium">No documents yet</p>
-              <p className="text-sm text-slate-600 dark:text-slate-300">
+              <p className="text-sm font-medium text-white">No documents yet</p>
+              <p className="text-sm text-slate-400">
                 Generate your first QA artifact and it will appear here for review and export.
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Link href="/generate/test-cases">
-                  <Button>
+                  <Button className="border-indigo-500 bg-indigo-500 text-white hover:bg-indigo-600">
                     <Sparkles className="mr-2 h-4 w-4" />
                     Generate test cases
                   </Button>
                 </Link>
                 <Link href="/generate/checklist">
-                  <Button variant="secondary">Generate checklist</Button>
+                  <Button className="border border-white/20 bg-transparent text-white hover:bg-white/10 hover:border-white/40">
+                    Generate checklist
+                  </Button>
                 </Link>
               </div>
             </div>
@@ -136,17 +151,19 @@ export default function DocumentsPage() {
         docs.map((doc) => (
           <Card key={doc.id} className="flex flex-wrap items-center justify-between gap-3">
             <div className="min-w-0">
-              <p className="truncate font-medium">{doc.title}</p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="truncate font-medium text-white">{doc.title}</p>
+              <p className="text-sm text-slate-500">
                 {doc.type} • {new Date(doc.createdAt).toLocaleString()}
               </p>
             </div>
             <div className="flex gap-2">
               <a href={`/api/documents/${doc.id}/export?format=md`}>
-                <Button variant="outline">Export</Button>
+                <Button className="border border-white/20 bg-transparent text-white hover:bg-white/10 hover:border-white/40">
+                  Export
+                </Button>
               </a>
               <Button
-                variant="outline"
+                className="border border-white/20 bg-transparent text-white hover:bg-white/10 hover:border-white/40"
                 onClick={async () => {
                   setError("");
                   try {
@@ -182,7 +199,9 @@ export default function DocumentsPage() {
                 Delete
               </Button>
               <Link href={`/documents/${doc.id}`}>
-                <Button>Open</Button>
+                <Button className="border-indigo-500 bg-indigo-500 text-white hover:bg-indigo-600">
+                  Open
+                </Button>
               </Link>
             </div>
           </Card>
