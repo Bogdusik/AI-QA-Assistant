@@ -5,7 +5,7 @@ export function Card({ className, children }: { className?: string; children: Re
   return (
     <div
       className={cn(
-        "rounded-2xl border border-slate-300 bg-gradient-to-br from-white via-white to-brand-50/20 p-5 shadow-sm ring-1 ring-slate-300/80 transition-colors hover:ring-brand-500/60 hover:shadow-md dark:border-slate-200 dark:bg-white dark:text-slate-900 dark:ring-brand-500/30",
+        "rounded-2xl border border-white/10 bg-slate-800/60 p-5 backdrop-blur-sm shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-xl hover:shadow-indigo-500/10",
         className
       )}
     >

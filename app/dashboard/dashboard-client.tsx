@@ -236,21 +236,22 @@ export function DashboardClient({ total, byType, byReview, recentDocs }: Props) 
         className="space-y-3"
       >
         <div className="flex items-end justify-between">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+          <h2 className="text-lg font-semibold text-white">
             Recent documents
           </h2>
           <Link href="/documents">
-            <Button variant="outline" className="text-xs">
+            <Button
+              variant="outline"
+              className="border-white/20 bg-transparent text-xs text-slate-300 hover:bg-white/10 hover:text-white"
+            >
               View all
             </Button>
           </Link>
         </div>
 
         {recentDocs.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-200 bg-white/60 p-6 text-center dark:border-slate-700 dark:bg-slate-900/40">
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              No documents yet
-            </p>
+          <div className="rounded-2xl border border-dashed border-white/10 bg-slate-800/60 p-6 text-center backdrop-blur-sm">
+            <p className="text-sm font-medium text-slate-300">No documents yet</p>
             <p className="mt-1 text-sm text-slate-500">
               Generate your first QA artifact from the section above.
             </p>
@@ -264,15 +265,16 @@ export function DashboardClient({ total, byType, byReview, recentDocs }: Props) 
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.38 + i * 0.06, duration: 0.3 }}
               >
-                <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-900/60">
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-800/60 px-4 py-3 backdrop-blur-sm transition-all duration-200 hover:border-white/20 hover:shadow-md hover:shadow-indigo-500/10">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">
-                      {doc.title}
-                    </p>
+                    <p className="truncate text-sm font-medium text-white">{doc.title}</p>
                     <p className="mt-0.5 text-xs text-slate-500">{doc.type.replace(/_/g, " ")}</p>
                   </div>
                   <Link href={`/documents/${doc.id}`}>
-                    <Button variant="outline" className="shrink-0 text-xs">
+                    <Button
+                      variant="outline"
+                      className="shrink-0 border-white/20 bg-transparent text-xs text-slate-300 hover:bg-white/10 hover:text-white"
+                    >
                       Open
                     </Button>
                   </Link>
