@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col bg-gradient-to-b from-slate-50 via-slate-50 to-white text-slate-900">
+      <body className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
         <Providers>
           <div className="flex flex-1">
             <Sidebar />

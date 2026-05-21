@@ -11,7 +11,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-shadow duration-200",
+        "inline-flex items-center rounded-full px-3 py-1.5 text-sm font-medium transition-shadow duration-200",
         tone === "default" && "bg-slate-100 text-slate-700 ring-1 ring-slate-200",
         tone === "pending" &&
           "bg-amber-500/10 text-amber-600 ring-1 ring-amber-400/40 badge-glow-amber dark:text-amber-400",
