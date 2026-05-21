@@ -127,9 +127,9 @@ export function Topbar() {
           ) : (
             <>
               <Link href="/login">
-                <Button className="rounded-xl border border-white/30 bg-transparent px-4 py-2 text-white hover:border-white/50 hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-all duration-300">
+                <button className="border border-white/40 text-white bg-transparent px-4 py-2 rounded-xl text-sm font-medium hover:bg-white/10 transition-all duration-300">
                   Log in
-                </Button>
+                </button>
               </Link>
               <Link href="/register">
                 <Button className="bg-white text-black hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] transition-all duration-300">
