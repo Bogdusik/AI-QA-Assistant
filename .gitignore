@@ -6,3 +6,4 @@ coverage
 dist
 uploads
 *.log
+.DS_Store
