@@ -1,26 +1,49 @@
+<div align="center">
+
+<img src="docs/media/test-cases.png" alt="Demo project: generated test cases with steps, test data and expected results, each accepted by a reviewer, next to a coverage panel" width="900">
+
 # AI QA Assistant
 
-AI QA Assistant is an AI-powered QA artifact generator for real-world workflows. It transforms raw requirements and feature descriptions into structured artifacts (Test Cases, Checklists, Bug Report drafts, API Test Ideas) with a mandatory human-in-the-loop review flow and explainability.
+**Turns requirements into test cases, checklists, bug-report drafts and API test ideas, and makes a person review every item before it can be exported.**
 
-Demo Mode is available instantly for recruiters/interviewers via a **read-only Demo Project**.
+[![CI](https://github.com/Bogdusik/AI-QA-Assistant/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Bogdusik/AI-QA-Assistant/actions/workflows/ci.yml)
+[![Live demo](https://img.shields.io/badge/live_demo-no_sign--up-34d399?logo=vercel&logoColor=white)](https://ai-qa-assistant-lyart.vercel.app/demo/test-cases)
+![Next.js 15](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-PostgreSQL-2D3748?logo=prisma&logoColor=white)
+![OpenAI](https://img.shields.io/badge/OpenAI-API-412991?logo=openai&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/license-MIT-2EA44F)](LICENSE)
 
-## Demo
+</div>
 
-You can explore the app without creating an account:
+## Try the demo
 
-- `/demo/test-cases`
-- `/demo/checklist`
-- `/demo/bug-report`
-- `/demo/api-ideas`
+A read-only Demo Project opens without an account:
+[test cases](https://ai-qa-assistant-lyart.vercel.app/demo/test-cases) ·
+[checklist](https://ai-qa-assistant-lyart.vercel.app/demo/checklist) ·
+[bug report](https://ai-qa-assistant-lyart.vercel.app/demo/bug-report) ·
+[API test ideas](https://ai-qa-assistant-lyart.vercel.app/demo/api-ideas).
 
-## Why It's Cool
+<table>
+<tr>
+<td width="58%" valign="top">
+<img src="docs/media/bug-report.png" alt="A bug-report draft with priority and severity tags, notes, environment, actual and expected result and numbered steps to reproduce"><br>
+<b>Every artifact type, readable.</b> A bug-report draft with severity, environment, actual and expected result and steps to reproduce.
+</td>
+<td width="42%" valign="top">
+<img src="docs/media/coverage-quality.png" alt="Coverage panel with totals and reasons, and a quality analysis with a score of 86/100, strengths, weaknesses and suggestions"><br>
+<b>Coverage and quality.</b> What the accepted items cover, why the score is what it is, and what to add next.
+</td>
+</tr>
+</table>
 
-- Human-in-the-loop review: generated items start as `PENDING` and can be `ACCEPTED` or `REJECTED`
-- Coverage + Quality Analyzer: score, strengths/weaknesses/suggestions, plus explainability persisted in PostgreSQL
-- Improve with AI: generate upgrades using AI and preview changes before applying
-- Traceability: every artifact includes evidence/assumptions/risk notes for justification
-- Export-ready: exports are generated from **ACCEPTED** items only (Markdown/CSV/plain text depending on artifact type)
-- Guest mode with usage limits + generator lock-in for the first chosen generator type
+## What it does
+
+- **Human in the loop:** every generated item starts as `PENDING` and has to be `ACCEPTED` or `REJECTED`; exports include accepted items only (Markdown, CSV or plain text depending on the type).
+- **Coverage and Quality Analyzer:** a score with strengths, weaknesses and suggestions, plus the reasoning behind it, stored in PostgreSQL.
+- **Improve with AI:** ask for a better version of an item and compare old and new before applying it.
+- **Traceability:** each item carries its evidence, assumptions and risk notes.
+- **Guest mode:** try the generators without an account, with usage limits; a guest stays on the first generator type they choose.
 
 ## Tech Stack
 
@@ -151,3 +174,7 @@ AI-QA-Assistant/
 - Reliable Prisma workflow: migrations + seed + explainability persistence
 
 Fork it, use it, improve it - open to PRs!
+
+## License
+
+[MIT](LICENSE)
