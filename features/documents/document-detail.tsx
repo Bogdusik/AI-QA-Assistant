@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   XCircle
 } from "lucide-react";
+import { ArtifactContent } from "./artifact-content";
 
 type ReviewStatus = "PENDING" | "ACCEPTED" | "REJECTED";
 type ItemType = "TEST_CASE" | "CHECKLIST_ITEM" | "BUG_REPORT" | "API_TEST_IDEA";
@@ -260,20 +261,20 @@ export function DocumentDetailClient({
   return (
     <div className="space-y-4">
       {readOnly ? (
-        <Card className="border-semantic-warning-100 bg-semantic-warning-50">
+        <Card className="border-amber-400/20 bg-amber-400/10">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="mt-0.5 h-5 w-5 text-semantic-warning-700" />
-            <p className="text-sm text-slate-900">
+            <AlertTriangle className="mt-0.5 h-5 w-5 text-amber-400" />
+            <p className="text-sm text-amber-100">
               <strong>Demo Project</strong> is read-only. You can review, analyze, and export
               examples, but you cannot edit or regenerate them.
             </p>
           </div>
         </Card>
       ) : actorKind === "guest" ? (
-        <Card className="border-semantic-warning-100 bg-semantic-warning-50">
+        <Card className="border-amber-400/20 bg-amber-400/10">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="mt-0.5 h-5 w-5 text-semantic-warning-700" />
-            <p className="text-sm text-slate-900">
+            <AlertTriangle className="mt-0.5 h-5 w-5 text-amber-400" />
+            <p className="text-sm text-amber-100">
               You are in guest mode. Create an account to remove usage limits and keep your work
               beyond this session.
             </p>
@@ -316,7 +317,7 @@ export function DocumentDetailClient({
             <Card className="border-dashed">
               <div className="space-y-1">
                 <p className="text-sm font-medium">No items match this filter.</p>
-                <p className="text-sm text-slate-600 dark:text-slate-300">
+                <p className="text-sm text-white/60">
                   Try switching to <strong>ALL</strong> or accept more artifacts to unlock stronger
                   coverage.
                 </p>
@@ -328,9 +329,7 @@ export function DocumentDetailClient({
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="truncate font-medium">{item.title}</p>
-                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                      {item.itemType}
-                    </p>
+                    <p className="mt-1 text-xs text-white/50">{item.itemType}</p>
                   </div>
                   <Badge
                     tone={
@@ -360,13 +359,16 @@ export function DocumentDetailClient({
                   </Badge>
                 </div>
 
-                <Textarea
-                  defaultValue={JSON.stringify(item.contentJson, null, 2)}
-                  rows={10}
-                  id={`item-${item.id}`}
-                  disabled={readOnly}
-                  className="font-mono text-xs"
-                />
+                {readOnly ? (
+                  <ArtifactContent content={item.contentJson} />
+                ) : (
+                  <Textarea
+                    defaultValue={JSON.stringify(item.contentJson, null, 2)}
+                    rows={10}
+                    id={`item-${item.id}`}
+                    className="font-mono text-xs"
+                  />
+                )}
 
                 {!readOnly && (
                   <div className="flex flex-wrap gap-2">
@@ -406,7 +408,7 @@ export function DocumentDetailClient({
                       variant="outline"
                       onClick={() => void requestImprove(item)}
                       disabled={improveLoadingId === item.id}
-                      className="border-brand-200 bg-brand-50/30 text-brand-700 hover:bg-brand-50"
+                      className="border-sky-400/30 bg-sky-400/10 text-sky-300 hover:bg-sky-400/20"
                     >
                       <Sparkles className="mr-2 h-4 w-4" />
                       {improveLoadingId === item.id ? "Improving..." : "Improve with AI"}
@@ -415,7 +417,7 @@ export function DocumentDetailClient({
                 )}
 
                 {improveDraft?.itemId === item.id && (
-                  <Card className="space-y-3 border-slate-200 bg-slate-50 p-3">
+                  <Card className="space-y-3 border-white/10 bg-white/5 p-3">
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-sm font-medium">AI improvement preview</p>
                       <Button variant="outline" onClick={() => setImproveDraft(null)}>
@@ -424,18 +426,14 @@ export function DocumentDetailClient({
                     </div>
                     <div className="grid gap-3 md:grid-cols-2">
                       <div className="space-y-1">
-                        <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
-                          Old
-                        </p>
-                        <pre className="max-h-64 overflow-auto rounded bg-white p-2 text-[11px]">
+                        <p className="text-xs font-medium text-white/60">Old</p>
+                        <pre className="max-h-64 overflow-auto rounded bg-black/40 p-2 text-[11px] text-white/80">
                           {JSON.stringify(improveDraft.oldContentJson, null, 2)}
                         </pre>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs font-medium text-slate-600 dark:text-slate-300">
-                          AI New
-                        </p>
-                        <pre className="max-h-64 overflow-auto rounded bg-white p-2 text-[11px]">
+                        <p className="text-xs font-medium text-white/60">AI New</p>
+                        <pre className="max-h-64 overflow-auto rounded bg-black/40 p-2 text-[11px] text-white/80">
                           {JSON.stringify(improveDraft.newContentJson, null, 2)}
                         </pre>
                       </div>
@@ -443,14 +441,14 @@ export function DocumentDetailClient({
                     <div className="flex flex-wrap gap-2">
                       <Button onClick={() => void applyImprove()}>Apply improvements</Button>
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-xs text-white/50">
                       Applying improvements resets review status to <strong>PENDING</strong> so you
                       can re-approve the updated artifact.
                     </p>
                   </Card>
                 )}
 
-                <details className="rounded-lg border border-slate-200 p-3 text-sm">
+                <details className="rounded-lg border border-white/10 p-3 text-sm text-white/80">
                   <summary className="cursor-pointer font-medium">Why this was generated</summary>
                   <div className="mt-2 space-y-1">
                     <p>
@@ -471,7 +469,7 @@ export function DocumentDetailClient({
 
         <div className="space-y-4 lg:col-span-5">
           <Card className="overflow-hidden">
-            <div className="rounded-xl bg-gradient-to-r from-brand-50 via-white to-white p-5">
+            <div className="rounded-xl bg-gradient-to-br from-sky-500/15 via-white/[0.03] to-transparent p-5">
               <h1 className="qa-h1">{title}</h1>
               <p className="mt-2 qa-body">Source URL: {sourceUrl || "Not provided"}</p>
               {sourceText ? (
@@ -486,49 +484,43 @@ export function DocumentDetailClient({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="qa-h2">Coverage</h2>
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                <p className="mt-1 text-sm text-white/60">
                   Requirement:{" "}
                   {sourceText ? "from your input" : "from document title / linked requirement"}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Status</p>
+                <p className="text-xs font-medium text-white/50">Status</p>
                 <p className="mt-1 text-sm font-medium">
                   <span
                     className={
                       coverage.status === "Well covered"
-                        ? "text-semantic-success-700"
+                        ? "text-emerald-400"
                         : coverage.status === "Partially covered"
-                          ? "text-semantic-warning-700"
-                          : "text-semantic-danger-700"
+                          ? "text-amber-400"
+                          : "text-rose-400"
                     }
                   >
                     {coverage.status}
                   </span>{" "}
-                  <span className="text-slate-500 dark:text-slate-400">
-                    (score {coverage.score}/100)
-                  </span>
+                  <span className="text-white/50">(score {coverage.score}/100)</span>
                 </p>
               </div>
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                  Coverage strength
-                </p>
-                <p className="text-xs font-medium text-slate-700 dark:text-slate-200">
-                  {coverage.score}%
-                </p>
+                <p className="text-xs font-medium text-white/50">Coverage strength</p>
+                <p className="text-xs font-medium text-white/70">{coverage.score}%</p>
               </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
                 <div
                   className={
                     coverage.status === "Well covered"
-                      ? "h-full bg-semantic-success-700"
+                      ? "h-full bg-emerald-500"
                       : coverage.status === "Partially covered"
-                        ? "h-full bg-semantic-warning-700"
-                        : "h-full bg-semantic-danger-700"
+                        ? "h-full bg-amber-500"
+                        : "h-full bg-rose-500"
                   }
                   style={{ width: `${coverage.score}%` }}
                 />
@@ -536,34 +528,30 @@ export function DocumentDetailClient({
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:bg-slate-900 dark:border-slate-800">
-                <p className="text-xs text-slate-500 dark:text-slate-400">Total items</p>
+              <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+                <p className="text-xs text-white/50">Total items</p>
                 <p className="text-lg font-semibold">{coverage.total}</p>
               </div>
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:bg-slate-900 dark:border-slate-800">
-                <p className="text-xs text-slate-500 dark:text-slate-400">Accepted</p>
+              <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+                <p className="text-xs text-white/50">Accepted</p>
                 <p
                   className={
                     "text-lg font-semibold " +
-                    (coverage.acceptedCount === 0
-                      ? "text-slate-700 dark:text-slate-200"
-                      : "text-semantic-success-700")
+                    (coverage.acceptedCount === 0 ? "text-white/70" : "text-emerald-400")
                   }
                 >
                   {coverage.acceptedCount}
                 </p>
               </div>
-              <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:bg-slate-900 dark:border-slate-800">
-                <p className="text-xs text-slate-500 dark:text-slate-400">Pending</p>
-                <p className="text-lg font-semibold text-semantic-warning-700">
-                  {coverage.pending.length}
-                </p>
+              <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+                <p className="text-xs text-white/50">Pending</p>
+                <p className="text-lg font-semibold text-amber-400">{coverage.pending.length}</p>
               </div>
             </div>
 
             <div className="space-y-2">
               <p className="text-sm font-medium">Why it is strong or weak</p>
-              <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700 dark:text-slate-200">
+              <ul className="list-disc space-y-1 pl-5 text-sm text-white/70">
                 {coverage.explanation.map((line, idx) => (
                   <li key={`cov-exp-${idx}`}>{line}</li>
                 ))}
@@ -573,7 +561,7 @@ export function DocumentDetailClient({
             <div className="space-y-2">
               <p className="text-sm font-medium">Accepted artifacts contributing to coverage</p>
               {coverage.accepted.length === 0 ? (
-                <p className="text-sm text-slate-600 dark:text-slate-300">
+                <p className="text-sm text-white/60">
                   No accepted items yet. Accept items to improve coverage.
                 </p>
               ) : (
@@ -581,10 +569,9 @@ export function DocumentDetailClient({
                   {coverage.accepted.map((i) => (
                     <span
                       key={i.id}
-                      className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs text-slate-800 dark:bg-white dark:text-slate-900"
+                      className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-xs text-white/80"
                     >
-                      {i.title}{" "}
-                      <span className="text-slate-500 dark:text-slate-400">({i.itemType})</span>
+                      {i.title} <span className="text-white/50">({i.itemType})</span>
                     </span>
                   ))}
                 </div>
@@ -596,7 +583,7 @@ export function DocumentDetailClient({
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
                 <h2 className="qa-h2">Quality Analyzer</h2>
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                <p className="mt-1 text-xs text-white/50">
                   AI insight panel for clarity and coverage.
                 </p>
               </div>
@@ -625,10 +612,10 @@ export function DocumentDetailClient({
             </div>
 
             {!analysis ? (
-              <div className="rounded-xl border border-dashed border-slate-300 bg-white/50 p-4 dark:border-slate-200 dark:bg-white/60">
+              <div className="rounded-xl border border-dashed border-white/15 bg-white/5 p-4">
                 <div className="space-y-1">
                   <p className="text-sm font-medium">No quality analysis yet</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-300">
+                  <p className="text-sm text-white/60">
                     Analyze accepted items to get a score plus strengths, weaknesses, and
                     improvement suggestions.
                   </p>
@@ -637,22 +624,22 @@ export function DocumentDetailClient({
             ) : (
               <div className="space-y-4 text-sm">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-24 w-24 items-center justify-center rounded-full bg-brand-50 ring-1 ring-brand-100">
+                  <div className="flex h-24 w-24 items-center justify-center rounded-full bg-sky-400/10 ring-1 ring-sky-400/30">
                     <div className="text-center">
-                      <p className="text-xs font-medium text-brand-700">Score</p>
-                      <p className="text-2xl font-semibold text-slate-900 dark:text-slate-50">
+                      <p className="text-xs font-medium text-sky-300">Score</p>
+                      <p className="text-2xl font-semibold text-white">
                         {analysis.overallScore}/100
                       </p>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs ring-1 ring-slate-200 dark:bg-white dark:ring-slate-200">
-                        <Sparkles className="h-4 w-4 text-brand-700" />
+                      <span className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1 text-xs text-white/80 ring-1 ring-white/15">
+                        <Sparkles className="h-4 w-4 text-sky-300" />
                         AI insight summary
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-xs text-white/50">
                       {analysis.overallScore >= 80
                         ? "Strong structure and signal."
                         : analysis.overallScore >= 50
@@ -662,37 +649,37 @@ export function DocumentDetailClient({
                   </div>
                 </div>
 
-                <div className="grid gap-3 md:grid-cols-3">
-                  <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-200 dark:bg-white">
+                <div className="grid gap-3">
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-white/80">
                     <p className="flex items-center gap-2 text-sm font-semibold">
-                      <CheckCircle2 className="h-4 w-4 text-semantic-success-700" />
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                       Strengths
                     </p>
-                    <ul className="mt-2 space-y-1 list-disc pl-5">
+                    <ul className="mt-2 list-disc space-y-1 break-words pl-5">
                       {(analysis.strengths as string[]).map((s, i) => (
                         <li key={`str-${i}`}>{s}</li>
                       ))}
                     </ul>
                   </div>
 
-                  <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-200 dark:bg-white">
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-white/80">
                     <p className="flex items-center gap-2 text-sm font-semibold">
-                      <AlertTriangle className="h-4 w-4 text-semantic-warning-700" />
+                      <AlertTriangle className="h-4 w-4 text-amber-400" />
                       Weaknesses
                     </p>
-                    <ul className="mt-2 space-y-1 list-disc pl-5">
+                    <ul className="mt-2 list-disc space-y-1 break-words pl-5">
                       {(analysis.weaknesses as string[]).map((s, i) => (
                         <li key={`wk-${i}`}>{s}</li>
                       ))}
                     </ul>
                   </div>
 
-                  <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-200 dark:bg-white">
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-white/80">
                     <p className="flex items-center gap-2 text-sm font-semibold">
-                      <Zap className="h-4 w-4 text-brand-700" />
+                      <Zap className="h-4 w-4 text-sky-300" />
                       Suggestions
                     </p>
-                    <ul className="mt-2 space-y-1 list-disc pl-5">
+                    <ul className="mt-2 list-disc space-y-1 break-words pl-5">
                       {(analysis.suggestions as string[]).map((s, i) => (
                         <li key={`sg-${i}`}>{s}</li>
                       ))}
@@ -700,7 +687,7 @@ export function DocumentDetailClient({
                   </div>
                 </div>
 
-                <details className="rounded-xl border border-slate-200 p-3 dark:border-slate-800">
+                <details className="rounded-xl border border-white/10 p-3 text-white/80">
                   <summary className="cursor-pointer font-medium">Explainability</summary>
                   <div className="mt-3 space-y-3">
                     <div>
